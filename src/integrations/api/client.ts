@@ -199,6 +199,19 @@ interface CareerRequirement {
   updated_at: string;
 }
 
+interface ThemeSettings {
+  id: string;
+  theme: 'light' | 'dark' | 'auto';
+  primary_color: string;
+  accent_color: string;
+  astro_blue: string;
+  astro_gold: string;
+  astro_white: string;
+  astro_accent: string;
+  created_at: string;
+  updated_at: string;
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -463,10 +476,6 @@ class ApiClient {
     return this.request<User[]>('/users');
   }
 
-  async getCurrentUser() {
-    return this.request<{ id: string; message: string }>('/users/current');
-  }
-
   async getUserById(id: string) {
     return this.request<User>(`/users/${id}`);
   }
@@ -498,32 +507,51 @@ class ApiClient {
     });
   }
 
+  // Authentication API
+  async login(credentials: { email: string; password: string }) {
+    return this.request<{
+      success: boolean;
+      user: {
+        id: string;
+        email: string;
+        name: string;
+        role: 'admin' | 'editor' | 'viewer';
+      };
+      message: string;
+    }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+  }
+
   // Admin Profile API
-  async getAdminProfile() {
+  async getAdminProfile(userId: string) {
     return this.request<{
       id: string;
       name: string;
       email: string;
+      image_url?: string;
       bio?: string;
-      avatar?: string;
       phone?: string;
       timezone?: string;
       language?: string;
+      role: 'admin' | 'editor' | 'viewer';
+      is_active: boolean | number;
       created_at: string;
       updated_at: string;
-    }>('/admin/profile');
+    }>(`/admin/profile?userId=${userId}`);
   }
 
-  async updateAdminProfile(data: {
+  async updateAdminProfile(userId: string, data: {
     name?: string;
     email?: string;
+    image_url?: string;
     bio?: string;
-    avatar?: string;
     phone?: string;
     timezone?: string;
     language?: string;
   }) {
-    return this.request<ApiResponse>('/admin/profile', {
+    return this.request<ApiResponse>(`/admin/profile?userId=${userId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
@@ -758,6 +786,44 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+
+  async getThemeSettings(): Promise<ThemeSettings> {
+    try {
+      const response = await this.request<ThemeSettings>('/theme-settings');
+      return response;
+    } catch (error) {
+      console.error('Error fetching theme settings:', error);
+      // Return default theme settings if API fails
+      return {
+        id: '1',
+        theme: 'auto',
+        primary_color: '#3B82F6',
+        accent_color: '#F59E0B',
+        astro_blue: '#007bff',
+        astro_gold: '#ffd700',
+        astro_white: '#ffffff',
+        astro_accent: '#ff5757',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+    }
+  }
+
+  async updateThemeSettings(settings: Partial<ThemeSettings>): Promise<ThemeSettings> {
+    try {
+      const response = await this.request<ThemeSettings>('/theme-settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(settings),
+      });
+      return response;
+    } catch (error) {
+      console.error('Error updating theme settings:', error);
+      throw error;
+    }
+  }
 }
 
 // Create and export the API client instance
@@ -785,4 +851,5 @@ export type {
   CareerCulture,
   CareerApplicationProcess,
   CareerRequirement,
+  ThemeSettings,
 }; 

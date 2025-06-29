@@ -2,6 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -10,6 +13,9 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from public directory
+app.use('/astroforge-uploads', express.static(path.join(__dirname, '../public/astroforge-uploads')));
 
 // MySQL Database Configuration
 const dbConfig = {
@@ -508,6 +514,56 @@ app.put('/api/users/:id/password', async (req, res) => {
   }
 });
 
+// Login endpoint
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+    
+    // Find user by email
+    const [rows] = await pool.execute(
+      'SELECT id, email, name, role, password_hash, is_active FROM users WHERE email = ?',
+      [email]
+    );
+    
+    if (rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    
+    const user = rows[0];
+    
+    // Check if user is active
+    if (!user.is_active) {
+      return res.status(401).json({ error: 'Account is deactivated. Please contact an administrator.' });
+    }
+    
+    // Verify password
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+    
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    
+    // Return user info (without password)
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      },
+      message: 'Login successful'
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Projects API
 app.get('/api/projects', async (req, res) => {
   try {
@@ -963,22 +1019,23 @@ app.get('/api/dashboard/stats', async (req, res) => {
 // Admin Profile API
 app.get('/api/admin/profile', async (req, res) => {
   try {
-    // For now, return a default admin profile
-    // In a real app, you'd get this from the authenticated user's session
-    const adminProfile = {
-      id: '1',
-      name: 'Admin User',
-      email: 'admin@astroforge.com',
-      bio: 'System administrator and content manager',
-      avatar: '',
-      phone: '+1 (555) 123-4567',
-      timezone: 'UTC-05:00 (Eastern Time)',
-      language: 'English',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    const { userId } = req.query;
     
-    res.json(adminProfile);
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+    
+    // Fetch the specific user from the database with all available fields
+    const [rows] = await pool.execute(
+      "SELECT id, name, email, image_url, bio, phone, timezone, language, role, is_active, created_at, updated_at FROM users WHERE id = ? AND role = 'admin' AND is_active = 1",
+      [userId]
+    );
+    
+    if (!rows.length) {
+      return res.status(404).json({ error: 'Admin user not found' });
+    }
+    
+    res.json(rows[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -986,11 +1043,64 @@ app.get('/api/admin/profile', async (req, res) => {
 
 app.put('/api/admin/profile', async (req, res) => {
   try {
-    const { name, email, bio, avatar, phone, timezone, language } = req.body;
+    const { userId } = req.query;
+    const { name, email, image_url, bio, phone, timezone, language } = req.body;
     
-    // In a real app, you'd update the authenticated user's profile in the database
-    // For now, just return success
-    console.log('Updating admin profile:', { name, email, bio, avatar, phone, timezone, language });
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+    
+    // Verify the user exists and is an admin
+    const [adminUsers] = await pool.execute(
+      "SELECT id FROM users WHERE id = ? AND role = 'admin' AND is_active = 1",
+      [userId]
+    );
+    
+    if (!adminUsers.length) {
+      return res.status(404).json({ error: 'Admin user not found' });
+    }
+    
+    // Build dynamic update query
+    const updateFields = [];
+    const updateValues = [];
+    
+    if (name !== undefined) {
+      updateFields.push('name = ?');
+      updateValues.push(name);
+    }
+    if (email !== undefined) {
+      updateFields.push('email = ?');
+      updateValues.push(email);
+    }
+    if (image_url !== undefined) {
+      updateFields.push('image_url = ?');
+      updateValues.push(image_url);
+    }
+    if (bio !== undefined) {
+      updateFields.push('bio = ?');
+      updateValues.push(bio);
+    }
+    if (phone !== undefined) {
+      updateFields.push('phone = ?');
+      updateValues.push(phone);
+    }
+    if (timezone !== undefined) {
+      updateFields.push('timezone = ?');
+      updateValues.push(timezone);
+    }
+    if (language !== undefined) {
+      updateFields.push('language = ?');
+      updateValues.push(language);
+    }
+    
+    if (updateFields.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+    
+    updateValues.push(userId);
+    
+    const sql = `UPDATE users SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+    await pool.execute(sql, updateValues);
     
     res.json({ message: 'Admin profile updated successfully' });
   } catch (error) {
@@ -1547,6 +1657,256 @@ app.delete('/api/career-requirements/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// Theme Settings API
+app.get('/api/theme-settings', async (req, res) => {
+  try {
+    // Get theme settings from site_settings table
+    const [rows] = await pool.execute(`
+      SELECT setting_key, setting_value, setting_type 
+      FROM site_settings 
+      WHERE setting_key IN ('theme_mode', 'primary_color', 'accent_color', 'astro_blue', 'astro_gold', 'astro_white', 'astro_accent')
+    `);
+    
+    // Map database settings to theme settings object
+    const themeSettings = {
+      id: '1',
+      theme: 'auto',
+      primary_color: '#3B82F6',
+      accent_color: '#F59E0B',
+      astro_blue: '#0066cc',
+      astro_gold: '#f0a500',
+      astro_white: '#ffffff',
+      astro_accent: '#007bff',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    rows.forEach(row => {
+      let value;
+      try {
+        // Parse JSON value from database
+        value = JSON.parse(row.setting_value);
+      } catch (error) {
+        // If parsing fails, use the raw value
+        value = row.setting_value;
+      }
+      
+      switch (row.setting_key) {
+        case 'theme_mode':
+          themeSettings.theme = value;
+          break;
+        case 'primary_color':
+          themeSettings.primary_color = value;
+          break;
+        case 'accent_color':
+          themeSettings.accent_color = value;
+          break;
+        case 'astro_blue':
+          themeSettings.astro_blue = value;
+          break;
+        case 'astro_gold':
+          themeSettings.astro_gold = value;
+          break;
+        case 'astro_white':
+          themeSettings.astro_white = value;
+          break;
+        case 'astro_accent':
+          themeSettings.astro_accent = value;
+          break;
+      }
+    });
+
+    res.json(themeSettings);
+  } catch (error) {
+    console.error('Error fetching theme settings:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/theme-settings', async (req, res) => {
+  try {
+    const { theme, primary_color, accent_color, astro_blue, astro_gold, astro_white, astro_accent } = req.body;
+    
+    // Update theme settings in site_settings table
+    const updates = [];
+    
+    if (theme !== undefined) {
+      await pool.execute(
+        'INSERT INTO site_settings (setting_key, setting_type, setting_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = CURRENT_TIMESTAMP',
+        ['theme_mode', 'string', JSON.stringify(theme)]
+      );
+    }
+    
+    if (primary_color !== undefined) {
+      await pool.execute(
+        'INSERT INTO site_settings (setting_key, setting_type, setting_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = CURRENT_TIMESTAMP',
+        ['primary_color', 'string', JSON.stringify(primary_color)]
+      );
+    }
+    
+    if (accent_color !== undefined) {
+      await pool.execute(
+        'INSERT INTO site_settings (setting_key, setting_type, setting_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = CURRENT_TIMESTAMP',
+        ['accent_color', 'string', JSON.stringify(accent_color)]
+      );
+    }
+
+    if (astro_blue !== undefined) {
+      await pool.execute(
+        'INSERT INTO site_settings (setting_key, setting_type, setting_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = CURRENT_TIMESTAMP',
+        ['astro_blue', 'string', JSON.stringify(astro_blue)]
+      );
+    }
+
+    if (astro_gold !== undefined) {
+      await pool.execute(
+        'INSERT INTO site_settings (setting_key, setting_type, setting_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = CURRENT_TIMESTAMP',
+        ['astro_gold', 'string', JSON.stringify(astro_gold)]
+      );
+    }
+
+    if (astro_white !== undefined) {
+      await pool.execute(
+        'INSERT INTO site_settings (setting_key, setting_type, setting_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = CURRENT_TIMESTAMP',
+        ['astro_white', 'string', JSON.stringify(astro_white)]
+      );
+    }
+
+    if (astro_accent !== undefined) {
+      await pool.execute(
+        'INSERT INTO site_settings (setting_key, setting_type, setting_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = CURRENT_TIMESTAMP',
+        ['astro_accent', 'string', JSON.stringify(astro_accent)]
+      );
+    }
+
+    // Return updated theme settings
+    const [rows] = await pool.execute(`
+      SELECT setting_key, setting_value, setting_type 
+      FROM site_settings 
+      WHERE setting_key IN ('theme_mode', 'primary_color', 'accent_color', 'astro_blue', 'astro_gold', 'astro_white', 'astro_accent')
+    `);
+    
+    const updatedThemeSettings = {
+      id: '1',
+      theme: 'auto',
+      primary_color: '#3B82F6',
+      accent_color: '#F59E0B',
+      astro_blue: '#0066cc',
+      astro_gold: '#f0a500',
+      astro_white: '#ffffff',
+      astro_accent: '#007bff',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    rows.forEach(row => {
+      let value;
+      try {
+        // Parse JSON value from database
+        value = JSON.parse(row.setting_value);
+      } catch (error) {
+        // If parsing fails, use the raw value
+        value = row.setting_value;
+      }
+      
+      switch (row.setting_key) {
+        case 'theme_mode':
+          updatedThemeSettings.theme = value;
+          break;
+        case 'primary_color':
+          updatedThemeSettings.primary_color = value;
+          break;
+        case 'accent_color':
+          updatedThemeSettings.accent_color = value;
+          break;
+        case 'astro_blue':
+          updatedThemeSettings.astro_blue = value;
+          break;
+        case 'astro_gold':
+          updatedThemeSettings.astro_gold = value;
+          break;
+        case 'astro_white':
+          updatedThemeSettings.astro_white = value;
+          break;
+        case 'astro_accent':
+          updatedThemeSettings.astro_accent = value;
+          break;
+      }
+    });
+
+    res.json(updatedThemeSettings);
+  } catch (error) {
+    console.error('Error updating theme settings:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// File Upload Configuration
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, '../public/astroforge-uploads');
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    // Generate unique filename with timestamp
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, 'profile-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: function (req, file, cb) {
+    // Check file type
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  }
+});
+
+// File Upload Endpoint
+app.post('/api/upload/profile-photo', upload.single('profilePhoto'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    // Generate the public URL for the uploaded file
+    const fileName = req.file.filename;
+    const imageUrl = `/astroforge-uploads/${fileName}`;
+
+    res.json({
+      success: true,
+      imageUrl: imageUrl,
+      fileName: fileName,
+      message: 'Profile photo uploaded successfully'
+    });
+  } catch (error) {
+    console.error('Error uploading profile photo:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Error handling for multer
+app.use((error, req, res, next) => {
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'File too large. Maximum size is 5MB.' });
+    }
+  }
+  next(error);
 });
 
 // Start server

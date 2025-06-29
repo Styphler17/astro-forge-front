@@ -1,19 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { apiClient } from '../integrations/api/client';
+import type { FAQ } from '../integrations/api/client';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
 import { Badge } from '../components/ui/badge';
-
-interface FAQ {
-  id: string;
-  question: string;
-  answer: string;
-  category: string;
-  display_order: number;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
 
 const FAQ = () => {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
@@ -47,11 +37,10 @@ const FAQ = () => {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      'General': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-      'Services': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-      'Projects': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-      'Contact': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
-      'Careers': 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300',
+      'General': 'bg-astro-blue/10 text-astro-blue dark:bg-astro-blue/20 dark:text-astro-blue/80',
+      'Services': 'bg-astro-gold/10 text-astro-gold dark:bg-astro-gold/20 dark:text-astro-gold/80',
+      'Projects': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+      'Contact': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
     };
     return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
   };
@@ -148,7 +137,7 @@ const FAQ = () => {
                   {selectedCategory !== 'all' && (
                     <button 
                       onClick={() => setSelectedCategory('all')}
-                      className="text-astro-blue hover:text-blue-700 transition-colors"
+                      className="text-astro-blue hover:text-astro-blue/80 transition-colors"
                     >
                       View all categories
                     </button>
@@ -190,7 +179,7 @@ const FAQ = () => {
               </p>
               <a 
                 href="/contact"
-                className="inline-flex items-center bg-astro-blue hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105"
+                className="inline-flex items-center bg-astro-blue hover:bg-astro-blue/80 text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105"
               >
                 Contact Us
               </a>

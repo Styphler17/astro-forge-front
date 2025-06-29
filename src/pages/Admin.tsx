@@ -7,6 +7,7 @@ import ProjectsManager from '../components/admin/ProjectsManager';
 import TeamManager from '../components/admin/TeamManager';
 import ServicesManager from '../components/admin/ServicesManager';
 import SponsorsManager from '../components/admin/SponsorsManager';
+import PagesManager from '../components/admin/PagesManager';
 import ThemeSettings from '../components/admin/ThemeSettings';
 import HeroSettings from '../components/admin/HeroSettings';
 import AboutSettings from '../components/admin/AboutSettings';
@@ -19,6 +20,7 @@ import ProjectForm from '../components/admin/forms/ProjectForm';
 import TeamForm from '../components/admin/forms/TeamForm';
 import ServiceForm from '../components/admin/forms/ServiceForm';
 import SponsorForm from '../components/admin/forms/SponsorForm';
+import PageForm from '../components/admin/forms/PageForm';
 import UserForm from '../components/admin/forms/UserForm';
 import UsersManager from '../components/admin/UsersManager';
 import MessagesManager from '../components/admin/MessagesManager';
@@ -82,6 +84,9 @@ const Admin = () => {
           <Route path="sponsors" element={<SponsorsManager />} />
           <Route path="sponsors/new" element={<SponsorForm />} />
           <Route path="sponsors/edit/:id" element={<SponsorForm />} />
+          <Route path="pages" element={<PagesManager />} />
+          <Route path="pages/new" element={<PageForm />} />
+          <Route path="pages/edit/:id" element={<PageForm />} />
           <Route path="users" element={<UsersManager />} />
           <Route path="users/new" element={<UserForm />} />
           <Route path="users/edit/:id" element={<UserForm />} />

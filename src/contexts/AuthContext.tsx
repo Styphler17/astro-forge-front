@@ -1,27 +1,39 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useState, useEffect, ReactNode } from 'react';
+import { apiClient } from '../integrations/api/client';
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'editor' | 'viewer';
+}
 
 interface AuthContextType {
+  user: User | null;
   isAdmin: boolean;
   isLoading: boolean;
-  login: () => void;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     // Check authentication status on mount
     const checkAuthStatus = () => {
       try {
-        const authStatus = localStorage.getItem('isAdmin');
-        setIsAdmin(authStatus === 'true');
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+          const userData = JSON.parse(savedUser);
+          setUser(userData);
+        }
       } catch (error) {
         console.error('Error checking auth status:', error);
-        setIsAdmin(false);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -30,27 +42,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkAuthStatus();
   }, []);
 
-  const login = () => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      localStorage.setItem('isAdmin', 'true');
-      setIsAdmin(true);
-    } catch (error) {
-      console.error('Error setting auth status:', error);
+      const response = await apiClient.login({ email, password });
+      
+      if (response.success) {
+        setUser(response.user);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        return { success: true };
+      } else {
+        return { success: false, error: 'Login failed' };
+      }
+    } catch (error: unknown) {
+      console.error('Login error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
+      return { success: false, error: errorMessage };
     }
   };
 
   const logout = () => {
     try {
-      localStorage.removeItem('isAdmin');
+      localStorage.removeItem('user');
       localStorage.removeItem('adminRedirectPath'); // Clean up redirect path
-      setIsAdmin(false);
+      setUser(null);
     } catch (error) {
       console.error('Error clearing auth status:', error);
     }
   };
 
+  const isAdmin = user?.role === 'admin';
+
   return (
-    <AuthContext.Provider value={{ isAdmin, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isAdmin, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

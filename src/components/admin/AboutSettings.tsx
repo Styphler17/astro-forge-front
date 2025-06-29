@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -88,11 +88,7 @@ const AboutSettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    fetchAboutSettings();
-  }, []);
-
-  const fetchAboutSettings = async () => {
+  const fetchAboutSettings = useCallback(async () => {
     try {
       setLoading(true);
       const allSettings = await apiClient.getSiteSettings();
@@ -127,7 +123,11 @@ const AboutSettings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchAboutSettings();
+  }, [fetchAboutSettings]);
 
   const saveSettings = async () => {
     try {
@@ -259,14 +259,15 @@ const AboutSettings = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">About Page Settings</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">About Settings</h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
-            Manage the content and appearance of your About page
+            Manage your about page content and settings
           </p>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
           <Button 
             onClick={fetchAboutSettings}
             variant="outline"

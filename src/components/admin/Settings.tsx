@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
-import { Save, Globe, Mail, Phone, MapPin } from 'lucide-react';
+import { Save, Globe, Mail } from 'lucide-react';
 import { apiClient } from '../../integrations/api/client';
 
 const Settings = () => {
   const [settings, setSettings] = useState({
     siteName: 'Astro Forge Holdings',
     siteDescription: 'Leading provider of innovative solutions across multiple industries',
-    siteUrl: 'https://astroforge.com',
+    siteUrl: 'https://astroforgeholdings.com',
     contactEmail: 'contact@astroforge.com',
     phone: '+1 (555) 123-4567',
     address: '123 Business Plaza, Innovation District, Tech City, TC 12345',
@@ -60,7 +60,7 @@ const Settings = () => {
         }
       };
 
-      siteSettings.forEach((setting: any) => {
+      siteSettings.forEach((setting: { setting_key: string; setting_value: string }) => {
         const value = JSON.parse(setting.setting_value);
         
         switch (setting.setting_key) {
@@ -119,8 +119,8 @@ const Settings = () => {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-300 rounded w-1/4 mb-4"></div>
           <div className="space-y-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-32 bg-gray-300 rounded"></div>
+            {Array.from({ length: 3 }, (_, i) => (
+              <div key={`settings-skeleton-${i}`} className="h-32 bg-gray-300 rounded"></div>
             ))}
           </div>
         </div>
@@ -130,11 +130,17 @@ const Settings = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
-        <p className="text-gray-600 dark:text-gray-300 mt-2">
-          Configure your website settings and preferences
-        </p>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">General Settings</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
+            Manage your general site settings
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+          {/* Place your action buttons here, e.g. Save, Reset */}
+        </div>
       </div>
 
       {/* General Settings */}
@@ -320,7 +326,7 @@ const Settings = () => {
         <Button 
           onClick={handleSave} 
           disabled={loading}
-          className="bg-astro-blue text-white hover:bg-blue-700 flex items-center space-x-2"
+          className="bg-astro-blue text-white hover:bg-astro-blue/80 flex items-center space-x-2"
         >
           <Save className="h-4 w-4" />
           <span>{loading ? 'Saving...' : 'Save Settings'}</span>

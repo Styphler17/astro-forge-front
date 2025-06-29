@@ -6,7 +6,7 @@ import { Label } from '../../ui/label';
 import { Textarea } from '../../ui/textarea';
 import { apiClient } from '../../../integrations/api/client';
 import { ArrowLeft, Save } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../../hooks/use-toast';
 
 interface Project {
@@ -28,13 +28,11 @@ interface Project {
 interface ProjectFormProps {
   project?: Project;
   onSave?: () => void;
-  onCancel?: () => void;
 }
 
-const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSave, onCancel }) => {
+const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSave }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { id } = useParams();
   const [formData, setFormData] = useState<Partial<Project>>({
     title: '',
     description: '',
@@ -254,9 +252,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ project, onSave, onCancel }) 
             </div>
 
             <div className="flex justify-end">
-              <Button type="button" variant="outline" onClick={onCancel}>
-                Cancel
-              </Button>
               <Button type="submit" disabled={loading} className="flex items-center space-x-2">
                 <Save className="h-4 w-4" />
                 <span>{loading ? 'Saving...' : 'Save Project'}</span>

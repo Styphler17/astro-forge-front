@@ -1,56 +1,172 @@
-
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { BarChart3, Users, FileText, Eye, TrendingUp, TrendingDown } from 'lucide-react';
+import { BarChart3, Users, FileText, TrendingUp, TrendingDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { apiClient } from '../../integrations/api/client';
+
+interface Activity {
+  action: string;
+  item: string;
+  time: string;
+}
 
 const Analytics = () => {
-  // Mock data for analytics
-  const stats = [
+  const navigate = useNavigate();
+  const [stats, setStats] = useState([
+    { title: 'Blog Posts', value: '0', change: '0', trend: 'neutral', icon: FileText },
+    { title: 'Projects', value: '0', change: '0', trend: 'neutral', icon: BarChart3 },
+    { title: 'Team Members', value: '0', change: '0', trend: 'neutral', icon: Users }
+  ]);
+  const [recentActivity, setRecentActivity] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
+
+  const fetchAnalytics = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch real data from API
+      const [blogPosts, projects, teamMembers] = await Promise.all([
+        apiClient.getBlogPosts().catch(() => []),
+        apiClient.getProjects().catch(() => []),
+        apiClient.getTeamMembers().catch(() => [])
+      ]);
+
+      // Calculate statistics
+      const newStats = [
+        {
+          title: 'Blog Posts',
+          value: blogPosts.length.toString(),
+          change: '+0',
+          trend: 'neutral',
+          icon: FileText
+        },
+        {
+          title: 'Projects',
+          value: projects.length.toString(),
+          change: '+0',
+          trend: 'neutral',
+          icon: BarChart3
+        },
+        {
+          title: 'Team Members',
+          value: teamMembers.length.toString(),
+          change: '+0',
+          trend: 'neutral',
+          icon: Users
+        }
+      ];
+
+      setStats(newStats);
+
+      // Generate recent activity from actual data
+      const activity: Activity[] = [];
+      
+      // Add recent blog posts
+      const recentPosts = blogPosts.slice(0, 2);
+      recentPosts.forEach(post => {
+        activity.push({
+          action: 'Blog post created',
+          item: post.title,
+          time: new Date(post.created_at).toLocaleDateString()
+        });
+      });
+
+      // Add recent projects
+      const recentProjects = projects.slice(0, 2);
+      recentProjects.forEach(project => {
+        activity.push({
+          action: 'Project added',
+          item: project.title,
+          time: new Date(project.created_at).toLocaleDateString()
+        });
+      });
+
+      // Add recent team members
+      const recentMembers = teamMembers.slice(0, 1);
+      recentMembers.forEach(member => {
+        activity.push({
+          action: 'Team member added',
+          item: member.name,
+          time: new Date(member.created_at).toLocaleDateString()
+        });
+      });
+
+      setRecentActivity(activity.slice(0, 5)); // Limit to 5 most recent
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const quickActions = [
     {
-      title: 'Total Pages',
-      value: '12',
-      change: '+2',
-      trend: 'up',
-      icon: FileText
+      title: 'Write Post',
+      description: 'Create a new blog post',
+      icon: FileText,
+      color: 'green',
+      onClick: () => navigate('/admin/blog/new')
     },
     {
-      title: 'Blog Posts',
-      value: '8',
-      change: '+1',
-      trend: 'up',
-      icon: FileText
+      title: 'Add Project',
+      description: 'Showcase a new project',
+      icon: BarChart3,
+      color: 'purple',
+      onClick: () => navigate('/admin/projects/new')
     },
     {
-      title: 'Projects',
-      value: '6',
-      change: '0',
-      trend: 'neutral',
-      icon: BarChart3
-    },
-    {
-      title: 'Team Members',
-      value: '5',
-      change: '+1',
-      trend: 'up',
-      icon: Users
+      title: 'Add Member',
+      description: 'Add a team member',
+      icon: Users,
+      color: 'orange',
+      onClick: () => navigate('/admin/team/new')
     }
   ];
 
-  const recentActivity = [
-    { action: 'New blog post created', item: 'Getting Started with React', time: '2 hours ago' },
-    { action: 'Page updated', item: 'About Us', time: '1 day ago' },
-    { action: 'Project added', item: 'E-commerce Platform', time: '2 days ago' },
-    { action: 'Team member added', item: 'John Doe', time: '3 days ago' },
-    { action: 'Page published', item: 'Services Overview', time: '1 week ago' }
-  ];
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Analytics</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
+            Track your content and website performance
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }, (_, i) => (
+            <Card key={`analytics-skeleton-${i}`}>
+              <CardContent className="p-6">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Analytics</h1>
-        <p className="text-gray-600 dark:text-gray-300 mt-2">
-          Track your content and website performance
-        </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Analytics</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
+            Track your content and website performance
+          </p>
+        </div>
+        <button
+          onClick={fetchAnalytics}
+          className="w-full sm:w-auto px-4 py-2 bg-astro-blue text-white rounded-lg hover:bg-astro-blue/80 transition-colors"
+        >
+          Refresh Data
+        </button>
       </div>
 
       {/* Stats Grid */}
@@ -104,21 +220,27 @@ const Analytics = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    {activity.action}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {activity.item}
-                  </p>
+            {recentActivity.length > 0 ? (
+              recentActivity.map((activity, index) => (
+                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {activity.action}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {activity.item}
+                    </p>
+                  </div>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {activity.time}
+                  </span>
                 </div>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {activity.time}
-                </span>
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                <p>No recent activity</p>
               </div>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
@@ -130,29 +252,17 @@ const Analytics = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <button className="p-4 text-left bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
-              <FileText className="h-6 w-6 text-blue-600 dark:text-blue-400 mb-2" />
-              <p className="font-medium text-gray-900 dark:text-white">Create Page</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Add a new page to your site</p>
-            </button>
-            
-            <button className="p-4 text-left bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors">
-              <FileText className="h-6 w-6 text-green-600 dark:text-green-400 mb-2" />
-              <p className="font-medium text-gray-900 dark:text-white">Write Post</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Create a new blog post</p>
-            </button>
-            
-            <button className="p-4 text-left bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors">
-              <BarChart3 className="h-6 w-6 text-purple-600 dark:text-purple-400 mb-2" />
-              <p className="font-medium text-gray-900 dark:text-white">Add Project</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Showcase a new project</p>
-            </button>
-            
-            <button className="p-4 text-left bg-orange-50 dark:bg-orange-900/20 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors">
-              <Users className="h-6 w-6 text-orange-600 dark:text-orange-400 mb-2" />
-              <p className="font-medium text-gray-900 dark:text-white">Add Member</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Add a team member</p>
-            </button>
+            {quickActions.map((action) => (
+              <button
+                key={action.title}
+                onClick={action.onClick}
+                className={`p-4 text-left bg-${action.color}-50 dark:bg-${action.color}-900/20 rounded-lg hover:bg-${action.color}-100 dark:hover:bg-${action.color}-900/30 transition-colors`}
+              >
+                <action.icon className={`h-6 w-6 text-${action.color}-600 dark:text-${action.color}-400 mb-2`} />
+                <p className="font-medium text-gray-900 dark:text-white">{action.title}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{action.description}</p>
+              </button>
+            ))}
           </div>
         </CardContent>
       </Card>

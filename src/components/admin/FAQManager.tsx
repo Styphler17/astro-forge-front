@@ -1,9 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
 import { Badge } from '../ui/badge';
 import { apiClient } from '../../integrations/api/client';
 import { Plus, Edit, Trash2, Search, RefreshCw, HelpCircle, Eye, EyeOff, ArrowUp, ArrowDown } from 'lucide-react';
@@ -124,7 +121,7 @@ const FAQManager = () => {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      'General': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+      'General': 'bg-astro-blue/10 text-astro-blue dark:bg-astro-blue/20 dark:text-astro-blue/80',
       'Services': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
       'Projects': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
       'Contact': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
@@ -138,8 +135,8 @@ const FAQManager = () => {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-300 rounded w-1/4 mb-4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-48 bg-gray-300 rounded"></div>
+            {Array.from({ length: 6 }, (_, i) => (
+              <div key={`faq-skeleton-${i}`} className="h-48 bg-gray-300 rounded"></div>
             ))}
           </div>
         </div>
@@ -150,14 +147,14 @@ const FAQManager = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">FAQ Management</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">FAQ</h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
-            Manage frequently asked questions and their answers ({faqs.length} total)
+            Manage your frequently asked questions
           </p>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
           <Button 
             onClick={fetchFaqs}
             variant="outline"
@@ -168,7 +165,7 @@ const FAQManager = () => {
           </Button>
           <Button 
             onClick={() => navigate('/admin/faq/new')}
-            className="bg-astro-blue text-white hover:bg-blue-700 flex items-center space-x-2"
+            className="bg-astro-blue text-white hover:bg-astro-blue/80 flex items-center space-x-2"
           >
             <Plus className="h-4 w-4" />
             <span>New FAQ</span>
@@ -300,7 +297,7 @@ const FAQManager = () => {
             {!searchTerm && selectedCategory === 'all' && (
               <Button 
                 onClick={() => navigate('/admin/faq/new')}
-                className="mt-4 bg-astro-blue text-white hover:bg-blue-700"
+                className="mt-4 bg-astro-blue text-white hover:bg-astro-blue/80"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add First FAQ

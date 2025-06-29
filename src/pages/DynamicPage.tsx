@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { apiClient } from '../integrations/api/client';
 
@@ -10,65 +10,34 @@ interface Page {
   content?: string;
   meta_description?: string;
   is_published: boolean;
-  display_order: number;
   created_at: string;
   updated_at: string;
 }
 
-interface PageSection {
-  type: 'text' | 'html' | 'image' | 'layout';
-  title: string;
-  content: string;
-  order: number;
-  is_active: boolean;
-}
-
 const DynamicPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const [page, setPage] = useState<Page | null>(null);
-  const [sections, setSections] = useState<PageSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!slug) return;
-    
     const fetchPage = async () => {
+      if (!slug) return;
+      
       try {
         setLoading(true);
-        const data = await apiClient.getPageBySlug(slug);
+        setError(null);
+        const pageData = await apiClient.getPageBySlug(slug);
         
-        if (!data || !data.is_published) {
-          setError('Page not found or not published');
+        if (!pageData.is_published) {
+          setError('This page is not published yet.');
           return;
         }
         
-        setPage(data);
-        
-        // Parse sections from content
-        if (data.content) {
-          try {
-            const parsedSections = JSON.parse(data.content);
-            if (Array.isArray(parsedSections)) {
-              setSections(parsedSections.filter((section: PageSection) => section.is_active));
-            }
-          } catch (e) {
-            // If content is not JSON, treat as single text section
-            setSections([{
-              type: 'text',
-              title: 'Content',
-              content: data.content,
-              order: 1,
-              is_active: true
-            }]);
-          }
-        }
-        
-        setError(null);
+        setPage(pageData);
       } catch (err) {
         console.error('Failed to fetch page:', err);
-        setError('Page not found');
+        setError('Page not found or unavailable.');
       } finally {
         setLoading(false);
       }
@@ -76,66 +45,6 @@ const DynamicPage = () => {
 
     fetchPage();
   }, [slug]);
-
-  const renderSection = (section: PageSection) => {
-    switch (section.type) {
-      case 'text':
-        return (
-          <div key={section.order} className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              {section.title}
-            </h2>
-            <div 
-              className="prose prose-lg max-w-none text-gray-700 dark:text-gray-300"
-              dangerouslySetInnerHTML={{ __html: section.content }}
-            />
-          </div>
-        );
-      
-      case 'html':
-        return (
-          <div key={section.order} className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              {section.title}
-            </h2>
-            <div 
-              className="prose prose-lg max-w-none"
-              dangerouslySetInnerHTML={{ __html: section.content }}
-            />
-          </div>
-        );
-      
-      case 'image':
-        return (
-          <div key={section.order} className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              {section.title}
-            </h2>
-            <img 
-              src={section.content} 
-              alt={section.title}
-              className="w-full h-auto rounded-lg shadow-lg"
-            />
-          </div>
-        );
-      
-      case 'layout':
-        return (
-          <div key={section.order} className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              {section.title}
-            </h2>
-            <div 
-              className="prose prose-lg max-w-none"
-              dangerouslySetInnerHTML={{ __html: section.content }}
-            />
-          </div>
-        );
-      
-      default:
-        return null;
-    }
-  };
 
   if (loading) {
     return (
@@ -159,13 +68,9 @@ const DynamicPage = () => {
           <div className="container mx-auto px-4">
             <div className="text-center">
               <h1 className="text-4xl font-bold text-white mb-4">Page Not Found</h1>
-              <p className="text-white mb-6">{error || 'The page you are looking for does not exist.'}</p>
-              <button 
-                onClick={() => navigate('/')}
-                className="bg-white text-astro-blue px-6 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                Go Home
-              </button>
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded max-w-md mx-auto">
+                <p>{error || 'The requested page could not be found.'}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -175,6 +80,7 @@ const DynamicPage = () => {
 
   return (
     <Layout>
+      {/* Hero Section */}
       <div className="pt-20 pb-16 bg-gradient-to-br from-astro-blue to-blue-800 dark:from-gray-800 dark:to-gray-900">
         <div className="container mx-auto px-4">
           <div className="text-center fade-in-scroll">
@@ -186,21 +92,30 @@ const DynamicPage = () => {
                 {page.meta_description}
               </p>
             )}
+            <div className="mt-6 text-sm text-blue-200">
+              <span>Last updated: {new Date(page.updated_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}</span>
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Page Content */}
       <section className="py-20 bg-white dark:bg-gray-900">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            {sections.length > 0 ? (
-              sections
-                .sort((a, b) => a.order - b.order)
-                .map(renderSection)
+            {page.content ? (
+              <div 
+                className="prose prose-lg max-w-none prose-slate dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-white prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-a:text-astro-blue hover:prose-a:text-astro-blue/80"
+                dangerouslySetInnerHTML={{ __html: page.content }}
+              />
             ) : (
-              <div className="text-center py-16">
-                <p className="text-gray-600 dark:text-gray-400 text-lg">
-                  This page has no content yet.
+              <div className="text-center py-12">
+                <p className="text-gray-500 dark:text-gray-400 text-lg">
+                  This page doesn't have any content yet.
                 </p>
               </div>
             )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
@@ -22,10 +22,9 @@ interface User {
 interface UserFormProps {
   user?: User;
   onSave?: () => void;
-  onCancel?: () => void;
 }
 
-const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel }) => {
+const UserForm: React.FC<UserFormProps> = ({ user, onSave }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { id } = useParams();
@@ -50,7 +49,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel }) => {
         try {
           setInitialLoading(true);
           const data = await apiClient.getUserById(id);
-          setFormData(data);
+          setFormData(data as Partial<User>);
         } catch (error) {
           console.error('Error fetching user:', error);
           setError('Failed to load user data');
@@ -354,11 +353,10 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel }) => {
                 <input
                   id="is_active"
                   type="checkbox"
-                  checked={formData.is_active || false}
+                  checked={Boolean(formData.is_active)}
                   onChange={(e) => handleInputChange('is_active', e.target.checked)}
-                  className="h-4 w-4"
+                  className="rounded"
                   aria-label="Active status"
-                  title="Toggle user active status"
                 />
                 <Label htmlFor="is_active">Active</Label>
               </div>

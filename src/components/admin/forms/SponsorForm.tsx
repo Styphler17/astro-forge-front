@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
@@ -24,10 +24,9 @@ interface Sponsor {
 interface SponsorFormProps {
   sponsor?: Sponsor;
   onSave?: () => void;
-  onCancel?: () => void;
 }
 
-const SponsorForm: React.FC<SponsorFormProps> = ({ sponsor, onSave, onCancel }) => {
+const SponsorForm: React.FC<SponsorFormProps> = ({ sponsor, onSave }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { id } = useParams();
@@ -50,7 +49,7 @@ const SponsorForm: React.FC<SponsorFormProps> = ({ sponsor, onSave, onCancel }) 
         try {
           setInitialLoading(true);
           const data = await apiClient.getSponsorById(id);
-          setFormData(data);
+          setFormData(data as Partial<Sponsor>);
         } catch (error) {
           console.error('Error fetching sponsor:', error);
           setError('Failed to load sponsor data');
@@ -238,11 +237,10 @@ const SponsorForm: React.FC<SponsorFormProps> = ({ sponsor, onSave, onCancel }) 
                 <input
                   id="is_active"
                   type="checkbox"
-                  checked={formData.is_active || false}
+                  checked={Boolean(formData.is_active)}
                   onChange={(e) => handleInputChange('is_active', e.target.checked)}
-                  className="h-4 w-4"
+                  className="rounded"
                   aria-label="Active status"
-                  title="Toggle sponsor active status"
                 />
                 <Label htmlFor="is_active">Active</Label>
               </div>

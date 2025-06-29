@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ChevronDown, Menu, X, Sun, Moon } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
 
   const services = [
     { name: 'Agriculture', href: '/services/agriculture' },
@@ -17,7 +21,7 @@ const Header = () => {
   ];
 
   return (
-    <header className="bg-astro-blue/95 dark:bg-gray-900/95 shadow-lg sticky top-0 z-50 transition-colors duration-300 backdrop-blur-sm p-4">
+    <header className="bg-astro-blue dark:bg-gray-900 shadow-lg sticky top-0 z-50 transition-colors duration-300 backdrop-blur-sm p-4">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}

@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Plus, Edit, Trash2, Eye, Search, ArrowUp, ArrowDown, ExternalLink, RefreshCw } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, ArrowUp, ArrowDown, ExternalLink, RefreshCw, Building2, Globe, Award } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { apiClient, Sponsor } from '../../integrations/api/client';
@@ -102,16 +102,38 @@ const SponsorsManager = () => {
     sponsor.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Loading skeleton component
+  const LoadingSkeleton = ({ count = 6 }: { count?: number }) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={`skeleton-${i}`} className="animate-pulse">
+          <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-6 h-64">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-lg"></div>
+              <div className="flex-1">
+                <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
+              </div>
+            </div>
+            <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-full mb-2"></div>
+            <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-2/3 mb-4"></div>
+            <div className="flex space-x-2">
+              <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-20"></div>
+              <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
+              <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-16"></div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   if (loading) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-300 rounded w-1/4 mb-4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-80 bg-gray-300 rounded"></div>
-            ))}
-          </div>
+          <LoadingSkeleton count={6} />
         </div>
       </div>
     );
@@ -120,26 +142,26 @@ const SponsorsManager = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Partners & Sponsors</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Partners & Sponsors</h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
-            Manage your partners and sponsors ({sponsors.length} total)
+            Manage your strategic partners and sponsors ({sponsors.length} total)
           </p>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
           <Button 
             onClick={fetchSponsors}
             disabled={refreshing}
             variant="outline"
-            className="flex items-center space-x-2"
+            className="flex items-center justify-center space-x-2 w-full sm:w-auto"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </Button>
           <Button 
             onClick={() => navigate('/admin/sponsors/new')}
-            className="bg-astro-blue text-white hover:bg-blue-700 flex items-center space-x-2"
+            className="bg-astro-blue text-white hover:bg-astro-blue/80 flex items-center justify-center space-x-2 w-full sm:w-auto"
           >
             <Plus className="h-4 w-4" />
             <span>New Sponsor</span>
@@ -181,8 +203,8 @@ const SponsorsManager = () => {
                         }}
                       />
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">{sponsor.name}</CardTitle>
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-lg line-clamp-1">{sponsor.name}</CardTitle>
                       <div className="flex items-center space-x-2 mt-1">
                         <Badge 
                           variant={sponsor.is_active ? "default" : "secondary"}
@@ -200,7 +222,7 @@ const SponsorsManager = () => {
                   <button
                     onClick={() => updateOrder(sponsor.id, sponsor.display_order - 1)}
                     disabled={index === 0}
-                    className="text-gray-400 hover:text-gray-600 disabled:opacity-30 p-1"
+                    className="text-gray-400 hover:text-gray-600 disabled:opacity-30 p-1 rounded transition-colors"
                     title="Move up"
                   >
                     <ArrowUp className="h-3 w-3" />
@@ -208,7 +230,7 @@ const SponsorsManager = () => {
                   <button
                     onClick={() => updateOrder(sponsor.id, sponsor.display_order + 1)}
                     disabled={index === filteredSponsors.length - 1}
-                    className="text-gray-400 hover:text-gray-600 disabled:opacity-30 p-1"
+                    className="text-gray-400 hover:text-gray-600 disabled:opacity-30 p-1 rounded transition-colors"
                     title="Move down"
                   >
                     <ArrowDown className="h-3 w-3" />
@@ -226,13 +248,17 @@ const SponsorsManager = () => {
               <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
                 {sponsor.website_url && (
                   <div className="flex items-center space-x-1">
-                    <ExternalLink className="h-3 w-3" />
-                    <span>Website</span>
+                    <Globe className="h-3 w-3" />
+                    <span>Website Available</span>
                   </div>
                 )}
+                <div className="flex items-center space-x-1">
+                  <Building2 className="h-3 w-3" />
+                  <span>Partner</span>
+                </div>
               </div>
 
-              <div className="flex space-x-2 pt-2">
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:space-x-2 sm:space-y-0">
                 {sponsor.website_url && (
                   <Button
                     variant="outline"
@@ -256,7 +282,7 @@ const SponsorsManager = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => toggleActive(sponsor.id, sponsor.is_active, sponsor.name)}
+                  onClick={() => toggleActive(sponsor.id, Boolean(sponsor.is_active), sponsor.name)}
                   className="flex-1"
                 >
                   {sponsor.is_active ? 'Deactivate' : 'Activate'}
@@ -278,18 +304,26 @@ const SponsorsManager = () => {
       {filteredSponsors.length === 0 && !loading && (
         <Card>
           <CardContent className="p-8 text-center">
-            <p className="text-gray-500 dark:text-gray-400">
-              {searchTerm ? 'No sponsors found matching your search.' : 'No sponsors yet. Add your first sponsor!'}
-            </p>
-            {!searchTerm && (
-              <Button 
-                onClick={() => navigate('/admin/sponsors/new')}
-                className="mt-4 bg-astro-blue text-white hover:bg-blue-700"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add First Sponsor
-              </Button>
-            )}
+            <div className="flex flex-col items-center space-y-4">
+              <Award className="h-16 w-16 text-gray-400" />
+              <div>
+                <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">
+                  {searchTerm ? 'No sponsors found matching your search.' : 'No sponsors yet.'}
+                </p>
+                <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">
+                  {!searchTerm && 'Add your first strategic partner or sponsor to get started!'}
+                </p>
+              </div>
+              {!searchTerm && (
+                <Button 
+                  onClick={() => navigate('/admin/sponsors/new')}
+                  className="bg-astro-blue text-white hover:bg-astro-blue/80"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add First Sponsor
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}

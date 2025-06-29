@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { apiClient } from '../integrations/api/client';
 
 interface Sponsor {
@@ -7,7 +7,7 @@ interface Sponsor {
   logo_url: string;
   website_url?: string;
   description?: string;
-  is_active: boolean;
+  is_active: number | boolean;
   display_order: number;
   created_at: string;
   updated_at: string;

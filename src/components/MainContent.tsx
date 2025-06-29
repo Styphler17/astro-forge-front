@@ -1,5 +1,3 @@
-
-import React from 'react';
 import { Building2, Mountain, Home, Users, GraduationCap, Sprout } from 'lucide-react';
 
 const MainContent = () => {

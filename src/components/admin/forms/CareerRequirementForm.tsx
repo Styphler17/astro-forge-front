@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
@@ -12,10 +12,9 @@ import { useToast } from '../../../hooks/use-toast';
 interface CareerRequirementFormProps {
   requirement?: CareerRequirement;
   onSave?: () => void;
-  onCancel?: () => void;
 }
 
-const CareerRequirementForm: React.FC<CareerRequirementFormProps> = ({ requirement, onSave, onCancel }) => {
+const CareerRequirementForm: React.FC<CareerRequirementFormProps> = ({ requirement, onSave }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { id } = useParams();
@@ -197,7 +196,7 @@ const CareerRequirementForm: React.FC<CareerRequirementFormProps> = ({ requireme
                 <input
                   id="is_active"
                   type="checkbox"
-                  checked={formData.is_active || false}
+                  checked={Boolean(formData.is_active)}
                   onChange={(e) => handleInputChange('is_active', e.target.checked)}
                   className="rounded"
                   aria-label="Active status"

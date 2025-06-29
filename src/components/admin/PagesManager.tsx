@@ -1,23 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Plus, Edit, Trash2, Eye, Search, Calendar, FileText, RefreshCw, ToggleLeft, ToggleRight, Settings } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { apiClient } from '../../integrations/api/client';
+import { apiClient, Page } from '../../integrations/api/client';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../hooks/use-toast';
-
-interface Page {
-  id: string;
-  title: string;
-  slug: string;
-  content?: string;
-  meta_description?: string;
-  is_published: boolean;
-  display_order: number;
-  created_at: string;
-  updated_at: string;
-}
 
 const PagesManager = () => {
   const navigate = useNavigate();
@@ -90,25 +78,6 @@ const PagesManager = () => {
     }
   };
 
-  const updateDisplayOrder = async (id: string, newOrder: number, title: string) => {
-    try {
-      await apiClient.updatePage(id, { display_order: newOrder });
-      toast({
-        title: "Success",
-        description: `Display order updated for "${title}".`,
-        variant: "default",
-      });
-      fetchPages();
-    } catch (error) {
-      console.error('Error updating display order:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update display order. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
   const filteredPages = pages.filter(page =>
     page.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     page.slug.toLowerCase().includes(searchTerm.toLowerCase())
@@ -119,9 +88,9 @@ const PagesManager = () => {
       <div className="space-y-6">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-300 rounded w-1/4 mb-4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-48 bg-gray-300 rounded"></div>
+          <div className="grid gap-4 sm:gap-6 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
+            {Array.from({ length: 6 }, (_, i) => (
+              <div key={`pages-skeleton-${i}`} className="h-48 bg-gray-300 rounded"></div>
             ))}
           </div>
         </div>
@@ -132,26 +101,26 @@ const PagesManager = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Pages</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Pages</h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
             Manage your website pages and content ({pages.length} total)
           </p>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
           <Button 
             onClick={fetchPages}
             disabled={refreshing}
             variant="outline"
-            className="flex items-center space-x-2"
+            className="flex items-center justify-center space-x-2 w-full sm:w-auto"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </Button>
           <Button 
             onClick={() => navigate('/admin/pages/new')}
-            className="bg-astro-blue text-white hover:bg-blue-700 flex items-center space-x-2"
+            className="bg-astro-blue text-white hover:bg-astro-blue/80 flex items-center justify-center space-x-2 w-full sm:w-auto"
           >
             <Plus className="h-4 w-4" />
             <span>New Page</span>
@@ -176,52 +145,31 @@ const PagesManager = () => {
       </Card>
 
       {/* Pages Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredPages.map((page, index) => (
-          <Card key={page.id} className="hover:shadow-lg transition-shadow duration-300">
+      <div className="grid gap-4 sm:gap-6 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
+        {filteredPages.map((page) => (
+          <Card key={page.id} className="w-full min-w-0 hover:shadow-lg transition-shadow duration-300">
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <CardTitle className="text-lg line-clamp-2">{page.title}</CardTitle>
+                  <CardTitle className="text-base sm:text-lg line-clamp-2">{page.title}</CardTitle>
                   <div className="flex items-center space-x-2 mt-2">
                     <Badge 
                       variant={page.is_published ? "default" : "secondary"}
                     >
                       {page.is_published ? 'Published' : 'Draft'}
                     </Badge>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      Order: {page.display_order}
-                    </span>
                   </div>
-                </div>
-                <div className="flex flex-col space-y-1 ml-2">
-                  <button
-                    onClick={() => updateDisplayOrder(page.id, page.display_order - 1, page.title)}
-                    disabled={index === 0}
-                    className="text-gray-400 hover:text-gray-600 disabled:opacity-30 p-1"
-                    title="Move up"
-                  >
-                    ↑
-                  </button>
-                  <button
-                    onClick={() => updateDisplayOrder(page.id, page.display_order + 1, page.title)}
-                    disabled={index === filteredPages.length - 1}
-                    className="text-gray-400 hover:text-gray-600 disabled:opacity-30 p-1"
-                    title="Move down"
-                  >
-                    ↓
-                  </button>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
-                <FileText className="h-3 w-3" />
-                <span>/{page.slug}</span>
+                <FileText className="h-3 w-3 flex-shrink-0" />
+                <span className="truncate">/{page.slug}</span>
               </div>
               
               <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
-                <Calendar className="h-3 w-3" />
+                <Calendar className="h-3 w-3 flex-shrink-0" />
                 <span>Updated: {new Date(page.updated_at).toLocaleDateString()}</span>
               </div>
 
@@ -231,40 +179,40 @@ const PagesManager = () => {
                 </p>
               )}
 
-              <div className="flex space-x-2 pt-2">
+              <div className="grid grid-cols-2 sm:flex sm:space-x-2 gap-2 sm:gap-0 pt-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => window.open(`/${page.slug}`, '_blank')}
-                  className="flex-1"
+                  className="flex-1 sm:flex-none"
                 >
                   <Eye className="h-4 w-4 mr-1" />
-                  View
+                  <span className="hidden sm:inline">View</span>
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => navigate(`/admin/pages/edit/${page.id}`)}
-                  className="flex-1"
+                  className="flex-1 sm:flex-none"
                 >
                   <Edit className="h-4 w-4 mr-1" />
-                  Edit
+                  <span className="hidden sm:inline">Edit</span>
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => togglePublished(page.id, page.is_published, page.title)}
-                  className={`flex-1 ${page.is_published ? 'text-orange-600 hover:text-orange-700' : 'text-green-600 hover:text-green-700'}`}
+                  className={`flex-1 sm:flex-none ${page.is_published ? 'text-orange-600 hover:text-orange-700' : 'text-green-600 hover:text-green-700'}`}
                 >
                   {page.is_published ? (
                     <>
                       <ToggleLeft className="h-4 w-4 mr-1" />
-                      Unpublish
+                      <span className="hidden sm:inline">Unpublish</span>
                     </>
                   ) : (
                     <>
                       <ToggleRight className="h-4 w-4 mr-1" />
-                      Publish
+                      <span className="hidden sm:inline">Publish</span>
                     </>
                   )}
                 </Button>
@@ -272,18 +220,20 @@ const PagesManager = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => navigate(`/admin/pages/edit/${page.id}#sections`)}
-                  className="flex-1"
+                  className="flex-1 sm:flex-none"
                   title="Manage Sections"
                 >
                   <Settings className="h-4 w-4" />
+                  <span className="hidden sm:inline ml-1">Settings</span>
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => deletePage(page.id, page.title)}
-                  className="text-red-600 hover:text-red-700"
+                  className="text-red-600 hover:text-red-700 col-span-2 sm:col-span-1 sm:flex-none"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">Delete</span>
                 </Button>
               </div>
             </CardContent>
@@ -300,7 +250,7 @@ const PagesManager = () => {
             {!searchTerm && (
               <Button 
                 onClick={() => navigate('/admin/pages/new')}
-                className="mt-4 bg-astro-blue text-white hover:bg-blue-700"
+                className="mt-4 bg-astro-blue text-white hover:bg-astro-blue/80"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create First Page

@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Plus, Edit, Trash2, Eye, Search, ArrowUp, ArrowDown, User, Mail, LinkedinIcon, Twitter, RefreshCw } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, ArrowUp, ArrowDown, User, Mail, LinkedinIcon, Twitter, RefreshCw } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -109,8 +109,8 @@ const TeamManager = () => {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-300 rounded w-1/4 mb-4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-80 bg-gray-300 rounded"></div>
+            {Array.from({ length: 6 }, (_, i) => (
+              <div key={`team-skeleton-${i}`} className="h-80 bg-gray-300 rounded"></div>
             ))}
           </div>
         </div>
@@ -121,14 +121,14 @@ const TeamManager = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Team Members</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Team Members</h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
-            Manage your team members and their profiles ({members.length} total)
+            Manage your team members and their roles
           </p>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
           <Button 
             onClick={fetchMembers}
             disabled={refreshing}
@@ -140,7 +140,7 @@ const TeamManager = () => {
           </Button>
           <Button 
             onClick={() => navigate('/admin/team/new')}
-            className="bg-astro-blue text-white hover:bg-blue-700 flex items-center space-x-2"
+            className="bg-astro-blue text-white hover:bg-astro-blue/80 flex items-center space-x-2"
           >
             <Plus className="h-4 w-4" />
             <span>New Member</span>
@@ -292,7 +292,7 @@ const TeamManager = () => {
             {!searchTerm && (
               <Button 
                 onClick={() => navigate('/admin/team/new')}
-                className="mt-4 bg-astro-blue text-white hover:bg-blue-700"
+                className="mt-4 bg-astro-blue text-white hover:bg-astro-blue/80"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add First Member

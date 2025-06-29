@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { apiClient } from '../../integrations/api/client';
-import { Save, RefreshCw, Eye, Plus, Trash2 } from 'lucide-react';
+import { Save, RefreshCw, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '../../hooks/use-toast';
 
 interface HeroSettings {
@@ -37,11 +37,7 @@ const HeroSettings = () => {
   const [saving, setSaving] = useState(false);
   const [newImageUrl, setNewImageUrl] = useState('');
 
-  useEffect(() => {
-    fetchHeroSettings();
-  }, []);
-
-  const fetchHeroSettings = async () => {
+  const fetchHeroSettings = useCallback(async () => {
     try {
       setLoading(true);
       const allSettings = await apiClient.getSiteSettings();
@@ -70,7 +66,11 @@ const HeroSettings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchHeroSettings();
+  }, [fetchHeroSettings]);
 
   const saveSettings = async () => {
     try {
@@ -154,14 +154,15 @@ const HeroSettings = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Hero Section Settings</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Hero Settings</h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
-            Manage the content and appearance of your homepage hero section
+            Manage your homepage hero section
           </p>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
           <Button 
             onClick={fetchHeroSettings}
             variant="outline"
@@ -173,7 +174,7 @@ const HeroSettings = () => {
           <Button 
             onClick={saveSettings}
             disabled={saving}
-            className="bg-astro-blue text-white hover:bg-blue-700 flex items-center space-x-2"
+            className="bg-astro-blue text-white hover:bg-astro-blue/80 flex items-center space-x-2"
           >
             <Save className="h-4 w-4" />
             <span>{saving ? 'Saving...' : 'Save Settings'}</span>

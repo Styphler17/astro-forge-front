@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { apiClient } from '../integrations/api/client';
 import { Card, CardContent, CardHeader } from '../components/ui/card';
@@ -137,12 +137,12 @@ const Careers = () => {
     return matchesDepartment && matchesLocation && job.is_active;
   });
 
-  const getJobTypeColor = (type: string) => {
-    switch (type) {
+  const getEmploymentTypeColor = (type: string) => {
+    switch (type.toLowerCase()) {
       case 'full-time': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      case 'part-time': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-      case 'contract': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
-      case 'internship': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300';
+      case 'part-time': return 'bg-astro-blue/10 text-astro-blue dark:bg-astro-blue/20 dark:text-astro-blue/80';
+      case 'contract': return 'bg-astro-gold/10 text-astro-gold dark:bg-astro-gold/20 dark:text-astro-gold/80';
+      case 'internship': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
     }
   };
@@ -253,7 +253,7 @@ const Careers = () => {
               <Button 
                 onClick={() => scrollToSection('why-work-with-us')}
                 variant="outline" 
-                className="border-white text-white hover:bg-white hover:text-astro-blue"
+                className="border-white text-white hover:bg-gray-100 hover:text-astro-blue"
               >
                 Why Work With Us
               </Button>
@@ -355,7 +355,7 @@ const Careers = () => {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {activeCulture.map((cultureItem, index) => (
+              {activeCulture.map((cultureItem) => (
                 <Card key={cultureItem.id} className="text-center hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
                   {cultureItem.image_url && (
                     <CardHeader className="p-0 rounded-t-lg overflow-hidden">
@@ -431,7 +431,7 @@ const Careers = () => {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {activeRequirements.map((requirement, index) => (
+              {activeRequirements.map((requirement) => (
                 <div key={requirement.id} className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
                   <div className="flex items-center space-x-3 mb-4">
                     <CheckCircle className="h-6 w-6 text-green-600" />
@@ -465,7 +465,7 @@ const Careers = () => {
 
             <div className="max-w-4xl mx-auto">
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {activeApplicationProcess.map((step, index) => (
+                {activeApplicationProcess.map((step) => (
                   <div key={step.id} className="relative">
                     <div className="bg-astro-blue text-white rounded-full w-12 h-12 flex items-center justify-center text-lg font-bold mb-4 mx-auto">
                       {step.step_number}
@@ -599,7 +599,7 @@ const Careers = () => {
                           <MapPin className="h-3 w-3 mr-1" />
                           {job.location}
                         </Badge>
-                        <Badge className={`text-xs ${getJobTypeColor(job.employment_type)}`}>
+                        <Badge className={`text-xs ${getEmploymentTypeColor(job.employment_type)}`}>
                           {job.employment_type.replace('-', ' ')}
                         </Badge>
                       </div>
@@ -648,7 +648,7 @@ const Careers = () => {
 
                   <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
                     <Link to={`/careers/job/${job.id}`}>
-                      <Button className="w-full bg-astro-blue hover:bg-blue-700 text-white text-sm">
+                      <Button className="w-full bg-astro-blue hover:bg-astro-blue/80 text-white text-sm">
                         View Details & Apply
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </Button>
@@ -706,7 +706,7 @@ const Careers = () => {
             <Button 
               size="lg" 
               variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-astro-blue"
+              className="border-white text-white hover:bg-gray-100 hover:text-astro-blue"
               onClick={() => window.location.href = '/contact'}
             >
               Contact Our Team

@@ -12,9 +12,7 @@ if [ $? -eq 0 ]; then
     echo "📁 Build files created in 'dist' folder"
     echo ""
     echo "🌐 Deployment options:"
-    echo "1. Vercel: vercel --prod"
-    echo "2. Netlify: netlify deploy --prod"
-    echo "3. Manual: Upload 'dist' folder to your hosting provider"
+    echo "1. Manual: Upload 'dist' folder to your hosting provider"
     echo ""
     echo "💡 For backend deployment, see DEPLOYMENT.md"
 else

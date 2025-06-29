@@ -1,43 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Plus, Edit, Trash2, Eye, Search, ArrowUp, ArrowDown, FileText, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
-import { apiClient } from '../../integrations/api/client';
+import { apiClient, Service } from '../../integrations/api/client';
+import { Plus, Edit, Trash2, Eye, EyeOff, Search, MoreHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../ui/alert-dialog';
 
-interface Service {
-  id: string;
-  title: string;
-  slug: string;
-  description?: string;
-  content?: string;
-  icon?: string;
-  image_url?: string;
-  is_published: boolean;
-  display_order: number;
-  created_at: string;
-  updated_at: string;
-}
-
-const ServicesManager = () => {
+const ServicesManager: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    fetchServices();
-  }, []);
-
-  const fetchServices = async () => {
+  const fetchServices = useCallback(async () => {
     try {
-      setRefreshing(true);
-      const data = await apiClient.getServices();
-      setServices(data || []);
+      setLoading(true);
+      const data = await apiClient.getServices(false); // Get all services, not just published
+      setServices(data);
     } catch (error) {
       console.error('Error fetching services:', error);
       toast({
@@ -47,21 +49,29 @@ const ServicesManager = () => {
       });
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
-  };
+  }, [toast]);
 
-  const deleteService = async (id: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) return;
+  // Fetch services on component mount
+  useEffect(() => {
+    fetchServices();
+  }, [fetchServices]);
+
+  const handleDelete = async () => {
+    if (!serviceToDelete) return;
 
     try {
-      await apiClient.deleteService(id);
+      setDeleting(true);
+      await apiClient.deleteService(serviceToDelete.id);
+      
+      // Remove from local state
+      setServices(prev => prev.filter(service => service.id !== serviceToDelete.id));
+      
       toast({
         title: "Success",
-        description: `Service "${title}" has been deleted successfully.`,
+        description: "Service deleted successfully!",
         variant: "default",
       });
-      fetchServices();
     } catch (error) {
       console.error('Error deleting service:', error);
       toast({
@@ -69,19 +79,36 @@ const ServicesManager = () => {
         description: "Failed to delete service. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setDeleting(false);
+      setDeleteDialogOpen(false);
+      setServiceToDelete(null);
     }
   };
 
-  const togglePublished = async (id: string, currentStatus: boolean, title: string) => {
+  const openDeleteDialog = (service: Service) => {
+    setServiceToDelete(service);
+    setDeleteDialogOpen(true);
+  };
+
+  const togglePublishStatus = async (service: Service) => {
     try {
-      await apiClient.updateService(id, { is_published: !currentStatus });
-      const action = currentStatus ? 'unpublished' : 'published';
+      await apiClient.updateService(service.id, {
+        is_published: !service.is_published
+      });
+      
+      // Update local state
+      setServices(prev => prev.map(s => 
+        s.id === service.id 
+          ? { ...s, is_published: !s.is_published }
+          : s
+      ));
+      
       toast({
         title: "Success",
-        description: `Service "${title}" has been ${action} successfully.`,
+        description: `Service ${service.is_published ? 'unpublished' : 'published'} successfully!`,
         variant: "default",
       });
-      fetchServices();
     } catch (error) {
       console.error('Error updating service status:', error);
       toast({
@@ -92,40 +119,33 @@ const ServicesManager = () => {
     }
   };
 
-  const updateOrder = async (id: string, newOrder: number) => {
-    try {
-      await apiClient.updateService(id, { display_order: newOrder });
-      toast({
-        title: "Success",
-        description: "Service order updated successfully.",
-        variant: "default",
-      });
-      fetchServices();
-    } catch (error) {
-      console.error('Error updating service order:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update service order. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+  // Filter services based on search term and status
+  const filteredServices = services.filter(service => {
+    const matchesSearch = service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         service.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         service.slug.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || 
+                         (statusFilter === 'published' && service.is_published) ||
+                         (statusFilter === 'draft' && !service.is_published);
+    
+    return matchesSearch && matchesStatus;
+  });
 
-  const filteredServices = services.filter(service =>
-    service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    service.description?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
 
   if (loading) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-300 rounded w-1/4 mb-4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-64 bg-gray-300 rounded"></div>
-            ))}
-          </div>
+          <div className="h-64 bg-gray-300 rounded"></div>
         </div>
       </div>
     );
@@ -134,159 +154,195 @@ const ServicesManager = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Services</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Services Manager</h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
-            Manage your services and offerings ({services.length} total)
+            Manage your service offerings and details
           </p>
         </div>
-        <div className="flex space-x-2">
-          <Button 
-            onClick={fetchServices}
-            disabled={refreshing}
-            variant="outline"
-            className="flex items-center space-x-2"
-          >
-            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
-          </Button>
-          <Button 
-            onClick={() => navigate('/admin/services/new')}
-            className="bg-astro-blue text-white hover:bg-blue-700 flex items-center space-x-2"
-          >
-            <Plus className="h-4 w-4" />
-            <span>New Service</span>
-          </Button>
-        </div>
+        <Button 
+          onClick={() => navigate('/admin/services/new')}
+          className="bg-astro-blue text-white hover:bg-blue-700 flex items-center space-x-2"
+        >
+          <Plus className="h-4 w-4" />
+          <span>Add Service</span>
+        </Button>
       </div>
 
-      {/* Search */}
+      {/* Filters */}
       <Card>
-        <CardContent className="p-4">
-          <div className="relative">
-            <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search services by title or description..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-astro-blue dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <CardContent className="p-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search services..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant={statusFilter === 'all' ? 'default' : 'outline'}
+                onClick={() => setStatusFilter('all')}
+                size="sm"
+              >
+                All ({services.length})
+              </Button>
+              <Button
+                variant={statusFilter === 'published' ? 'default' : 'outline'}
+                onClick={() => setStatusFilter('published')}
+                size="sm"
+              >
+                Published ({services.filter(s => s.is_published).length})
+              </Button>
+              <Button
+                variant={statusFilter === 'draft' ? 'default' : 'outline'}
+                onClick={() => setStatusFilter('draft')}
+                size="sm"
+              >
+                Draft ({services.filter(s => !s.is_published).length})
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Services Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredServices.map((service, index) => (
-          <Card key={service.id} className="hover:shadow-lg transition-shadow duration-300">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <CardTitle className="text-lg line-clamp-2">{service.title}</CardTitle>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <Badge 
-                      variant={service.is_published ? "default" : "secondary"}
-                    >
-                      {service.is_published ? 'Published' : 'Draft'}
-                    </Badge>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      Order: {service.display_order}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-col space-y-1 ml-2">
-                  <button
-                    onClick={() => updateOrder(service.id, service.display_order - 1)}
-                    disabled={index === 0}
-                    className="text-gray-400 hover:text-gray-600 disabled:opacity-30 p-1"
-                    title="Move up"
-                  >
-                    <ArrowUp className="h-3 w-3" />
-                  </button>
-                  <button
-                    onClick={() => updateOrder(service.id, service.display_order + 1)}
-                    disabled={index === filteredServices.length - 1}
-                    className="text-gray-400 hover:text-gray-600 disabled:opacity-30 p-1"
-                    title="Move down"
-                  >
-                    <ArrowDown className="h-3 w-3" />
-                  </button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3">
-                {service.description || 'No description available'}
+      {/* Services Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Services ({filteredServices.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {filteredServices.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500 dark:text-gray-400">
+                {searchTerm || statusFilter !== 'all' 
+                  ? 'No services match your filters.' 
+                  : 'No services found. Create your first service to get started.'
+                }
               </p>
-              
-              <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
-                <FileText className="h-3 w-3" />
-                <span>Slug: {service.slug}</span>
-              </div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Title</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Slug</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Status</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Order</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Updated</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-900 dark:text-white">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredServices.map((service) => (
+                    <tr key={service.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <td className="py-4 px-4">
+                        <div>
+                          <div className="font-medium text-gray-900 dark:text-white">{service.title}</div>
+                          {service.description && (
+                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                              {service.description}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <code className="text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                          {service.slug}
+                        </code>
+                      </td>
+                      <td className="py-4 px-4">
+                        <Badge variant={service.is_published ? 'default' : 'secondary'}>
+                          {service.is_published ? 'Published' : 'Draft'}
+                        </Badge>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {service.display_order}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {formatDate(service.updated_at)}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex justify-end space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => togglePublishStatus(service)}
+                            title={service.is_published ? 'Unpublish' : 'Publish'}
+                          >
+                            {service.is_published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(`/admin/services/edit/${service.id}`)}
+                            title="Edit"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => navigate(`/admin/services/edit/${service.id}`)}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => openDeleteDialog(service)}>
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-              <div className="flex space-x-2 pt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.open(`/services/${service.slug}`, '_blank')}
-                  className="flex-1"
-                >
-                  <Eye className="h-4 w-4 mr-1" />
-                  View
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate(`/admin/services/edit/${service.id}`)}
-                  className="flex-1"
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => togglePublished(service.id, service.is_published, service.title)}
-                  className="flex-1"
-                >
-                  {service.is_published ? 'Unpublish' : 'Publish'}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => deleteService(service.id, service.title)}
-                  className="text-red-600 hover:text-red-700"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {filteredServices.length === 0 && !loading && (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <p className="text-gray-500 dark:text-gray-400">
-              {searchTerm ? 'No services found matching your search.' : 'No services yet. Create your first service!'}
-            </p>
-            {!searchTerm && (
-              <Button 
-                onClick={() => navigate('/admin/services/new')}
-                className="mt-4 bg-astro-blue text-white hover:bg-blue-700"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add First Service
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the service "{serviceToDelete?.title}".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
 export default ServicesManager;
+

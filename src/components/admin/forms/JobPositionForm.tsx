@@ -11,12 +11,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '../../../hooks/use-toast';
 
 interface JobPositionFormProps {
-  jobPosition?: JobPosition;
+  position?: JobPosition;
   onSave?: () => void;
-  onCancel?: () => void;
 }
 
-const JobPositionForm: React.FC<JobPositionFormProps> = ({ jobPosition, onSave, onCancel }) => {
+const JobPositionForm: React.FC<JobPositionFormProps> = ({ position, onSave }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { id } = useParams();
@@ -41,7 +40,7 @@ const JobPositionForm: React.FC<JobPositionFormProps> = ({ jobPosition, onSave, 
   // Fetch job position data when editing
   useEffect(() => {
     const fetchJobPosition = async () => {
-      if (id && !jobPosition) {
+      if (id && !position) {
         try {
           setInitialLoading(true);
           const data = await apiClient.getJobPositionById(id);
@@ -57,13 +56,13 @@ const JobPositionForm: React.FC<JobPositionFormProps> = ({ jobPosition, onSave, 
         } finally {
           setInitialLoading(false);
         }
-      } else if (jobPosition) {
-        setFormData(jobPosition);
+      } else if (position) {
+        setFormData(position);
       }
     };
 
     fetchJobPosition();
-  }, [id, jobPosition, toast]);
+  }, [id, position, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,9 +70,9 @@ const JobPositionForm: React.FC<JobPositionFormProps> = ({ jobPosition, onSave, 
     setError(null);
 
     try {
-      if (id || jobPosition?.id) {
+      if (id || position?.id) {
         // Update existing job position
-        const jobId = id || jobPosition?.id;
+        const jobId = id || position?.id;
         await apiClient.updateJobPosition(jobId!, formData);
         toast({
           title: "Success",
@@ -171,7 +170,7 @@ const JobPositionForm: React.FC<JobPositionFormProps> = ({ jobPosition, onSave, 
             <span>Back to Careers</span>
           </Button>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            {id || jobPosition ? 'Edit Job Position' : 'Create New Job Position'}
+            {id || position ? 'Edit Job Position' : 'Create New Job Position'}
           </h1>
         </div>
       </div>
@@ -342,7 +341,7 @@ const JobPositionForm: React.FC<JobPositionFormProps> = ({ jobPosition, onSave, 
                 <input
                   id="is_active"
                   type="checkbox"
-                  checked={formData.is_active || false}
+                  checked={Boolean(formData.is_active)}
                   onChange={(e) => handleInputChange('is_active', e.target.checked)}
                   className="rounded"
                   aria-label="Active status"
@@ -361,7 +360,7 @@ const JobPositionForm: React.FC<JobPositionFormProps> = ({ jobPosition, onSave, 
               </Button>
               <Button type="submit" disabled={loading} className="flex items-center space-x-2">
                 <Save className="h-4 w-4" />
-                <span>{loading ? 'Saving...' : (id || jobPosition ? 'Update Position' : 'Create Position')}</span>
+                <span>{loading ? 'Saving...' : (id || position ? 'Update Position' : 'Create Position')}</span>
               </Button>
             </div>
           </form>

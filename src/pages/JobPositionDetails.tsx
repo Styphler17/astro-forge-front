@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { apiClient, JobPosition } from '../integrations/api/client';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -9,9 +9,7 @@ import {
   MapPin, 
   Building2, 
   Clock, 
-  Users, 
-  ArrowLeft, 
-  ExternalLink,
+  ArrowLeft,
   CheckCircle,
   Star,
   Calendar,
@@ -50,16 +48,11 @@ const JobPositionDetails = () => {
 
   const getEmploymentTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
-      case 'full-time':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      case 'part-time':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-      case 'contract':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300';
-      case 'internship':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+      case 'full-time': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+      case 'part-time': return 'bg-astro-blue/10 text-astro-blue dark:bg-astro-blue/20 dark:text-astro-blue/80';
+      case 'contract': return 'bg-astro-gold/10 text-astro-gold dark:bg-astro-gold/20 dark:text-astro-gold/80';
+      case 'internship': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
     }
   };
 
@@ -121,7 +114,7 @@ const JobPositionDetails = () => {
                 <p>{error || 'Job position not found'}</p>
                 <Button 
                   onClick={() => navigate('/careers')} 
-                  className="mt-4 bg-astro-blue text-white hover:bg-blue-700"
+                  className="mt-4 bg-astro-blue text-white hover:bg-astro-blue/80"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to Careers
@@ -144,7 +137,7 @@ const JobPositionDetails = () => {
               <Button 
                 variant="outline" 
                 onClick={() => navigate('/careers')}
-                className="text-white border-white hover:bg-white hover:text-astro-blue"
+                className="text-white border-white hover:bg-gray-100 hover:text-astro-blue"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Careers
@@ -252,7 +245,7 @@ const JobPositionDetails = () => {
                   <CardContent className="p-6">
                     <Button 
                       onClick={() => setShowApplicationForm(true)}
-                      className="w-full bg-astro-blue text-white hover:bg-blue-700 py-3 text-lg font-semibold"
+                      className="w-full bg-astro-blue text-white hover:bg-astro-blue/80 py-3 text-lg font-semibold"
                     >
                       Apply Now
                     </Button>
@@ -474,7 +467,7 @@ const JobPositionDetails = () => {
                   </Button>
                   <Button 
                     type="submit"
-                    className="flex-1 bg-astro-blue text-white hover:bg-blue-700"
+                    className="flex-1 bg-astro-blue text-white hover:bg-astro-blue/80"
                   >
                     Submit Application
                   </Button>

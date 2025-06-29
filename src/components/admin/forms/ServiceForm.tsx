@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
@@ -27,10 +27,9 @@ interface Service {
 interface ServiceFormProps {
   service?: Service;
   onSave?: () => void;
-  onCancel?: () => void;
 }
 
-const ServiceForm: React.FC<ServiceFormProps> = ({ service, onSave, onCancel }) => {
+const ServiceForm: React.FC<ServiceFormProps> = ({ service, onSave }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { id } = useParams();

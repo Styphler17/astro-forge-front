@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Plus, Edit, Trash2, Eye, Search, Calendar, User, RefreshCw } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -30,11 +30,7 @@ const BlogManager = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       setRefreshing(true);
       const data = await apiClient.getBlogPosts();
@@ -50,7 +46,11 @@ const BlogManager = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
   const deletePost = async (id: string, title: string) => {
     if (!confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) return;
@@ -77,7 +77,7 @@ const BlogManager = () => {
     try {
       await apiClient.updateBlogPost(id, { 
         is_published: !currentStatus,
-        published_at: !currentStatus ? new Date().toISOString() : null
+        published_at: !currentStatus ? new Date().toISOString() : undefined
       });
       const action = currentStatus ? 'unpublished' : 'published';
       toast({
@@ -108,8 +108,8 @@ const BlogManager = () => {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-300 rounded w-1/4 mb-4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-64 bg-gray-300 rounded"></div>
+            {Array.from({ length: 6 }, (_, i) => (
+              <div key={`blog-skeleton-${i}`} className="h-64 bg-gray-300 rounded"></div>
             ))}
           </div>
         </div>
@@ -120,26 +120,26 @@ const BlogManager = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Blog Posts</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Blog Posts</h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
             Manage your blog content and articles ({posts.length} total)
           </p>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
           <Button 
             onClick={fetchPosts}
             disabled={refreshing}
             variant="outline"
-            className="flex items-center space-x-2"
+            className="flex items-center justify-center space-x-2 w-full sm:w-auto"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </Button>
           <Button 
             onClick={() => navigate('/admin/blog/new')}
-            className="bg-astro-blue text-white hover:bg-blue-700 flex items-center space-x-2"
+            className="bg-astro-blue text-white hover:bg-astro-blue/80 flex items-center justify-center space-x-2 w-full sm:w-auto"
           >
             <Plus className="h-4 w-4" />
             <span>New Post</span>
@@ -244,7 +244,7 @@ const BlogManager = () => {
             {!searchTerm && (
               <Button 
                 onClick={() => navigate('/admin/blog/new')}
-                className="mt-4 bg-astro-blue text-white hover:bg-blue-700"
+                className="mt-4 bg-astro-blue text-white hover:bg-astro-blue/80"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add First Post

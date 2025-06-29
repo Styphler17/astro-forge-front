@@ -1,25 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Plus, Edit, Trash2, Eye, Search, Calendar, MapPin, ExternalLink } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { apiClient } from '../../integrations/api/client';
+import { apiClient, Project } from '../../integrations/api/client';
 import { useNavigate } from 'react-router-dom';
-
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  category: string;
-  location: string;
-  start_date: string;
-  end_date: string;
-  project_url: string | null;
-  image_url: string | null;
-  created_at: string;
-  updated_at: string;
-}
 
 const ProjectsManager = () => {
   const navigate = useNavigate();
@@ -59,18 +44,17 @@ const ProjectsManager = () => {
       case 'completed':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
       case 'in progress':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+        return 'bg-astro-gold/10 text-astro-gold dark:bg-astro-gold/20 dark:text-astro-gold/80';
       case 'planned':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+        return 'bg-astro-blue/10 text-astro-blue dark:bg-astro-blue/20 dark:text-astro-blue/80';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
     }
   };
 
   const filteredProjects = projects.filter(project =>
     project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.category.toLowerCase().includes(searchTerm.toLowerCase())
+    (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (loading) {
@@ -79,8 +63,8 @@ const ProjectsManager = () => {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-300 rounded w-1/4 mb-4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-80 bg-gray-300 rounded"></div>
+            {Array.from({ length: 6 }, (_, i) => (
+              <div key={`projects-skeleton-${i}`} className="h-80 bg-gray-300 rounded"></div>
             ))}
           </div>
         </div>
@@ -91,16 +75,16 @@ const ProjectsManager = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Projects</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Projects</h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
             Manage your project portfolio and showcase your work
           </p>
         </div>
         <Button 
           onClick={() => navigate('/admin/projects/new')}
-          className="bg-astro-blue text-white hover:bg-blue-700 flex items-center space-x-2"
+          className="bg-astro-blue text-white hover:bg-astro-blue/80 flex items-center justify-center space-x-2 w-full sm:w-auto"
         >
           <Plus className="h-4 w-4" />
           <span>New Project</span>
@@ -124,7 +108,7 @@ const ProjectsManager = () => {
       </Card>
 
       {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filteredProjects.map((project) => (
           <Card key={project.id} className="hover:shadow-lg transition-shadow duration-300">
             <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-t-lg overflow-hidden">
@@ -155,19 +139,12 @@ const ProjectsManager = () => {
               
               <div className="space-y-2 text-xs text-gray-500 dark:text-gray-400">
                 <div className="flex items-center space-x-1">
-                  <MapPin className="h-3 w-3" />
-                  <span>{project.location || 'Location not specified'}</span>
-                </div>
-                <div className="flex items-center space-x-1">
                   <Calendar className="h-3 w-3" />
-                  <span>
-                    {project.start_date ? new Date(project.start_date).toLocaleDateString() : 'Start date not set'}
-                    {project.end_date && ` - ${new Date(project.end_date).toLocaleDateString()}`}
-                  </span>
+                  <span>Created: {new Date(project.created_at).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <span className="font-medium">Category:</span>
-                  <span>{project.category}</span>
+                  <span className="font-medium">Status:</span>
+                  <span>{project.status}</span>
                 </div>
               </div>
 

@@ -15,7 +15,7 @@ A modern, responsive corporate website built with React, TypeScript, and Tailwin
 - **Backend**: Node.js, Express.js
 - **Database**: MySQL
 - **Authentication**: Custom admin system
-- **Deployment**: Netlify, GoDaddy, Hostinger
+- **Deployment**: GoDaddy, Hostinger
 
 ## 📋 Features
 
@@ -41,15 +41,6 @@ A modern, responsive corporate website built with React, TypeScript, and Tailwin
 - ✅ Career portal management
 
 ## 🚀 Deployment Options
-
-### Netlify (Recommended)
-```bash
-# Install Netlify CLI
-npm install -g netlify-cli
-
-# Deploy
-netlify deploy --prod
-```
 
 ### GoDaddy
 1. Build the project: `npm run build:prod`

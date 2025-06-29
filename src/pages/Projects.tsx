@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Calendar, MapPin, Users, Target, ExternalLink, ArrowRight } from 'lucide-react';
+import { Calendar, Target, ExternalLink, ArrowRight } from 'lucide-react';
 import { apiClient, Project } from '../integrations/api/client';
 import FilterBar from '../components/ui/filter-bar';
 
@@ -44,7 +44,7 @@ const Projects = () => {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(project =>
         project.title.toLowerCase().includes(query) ||
-        project.description.toLowerCase().includes(query)
+        project.description?.toLowerCase().includes(query)
       );
     }
 
@@ -82,11 +82,10 @@ const Projects = () => {
     switch (status.toLowerCase()) {
       case 'completed':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      case 'in_progress':
-      case 'active':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-      case 'planning':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+      case 'in progress':
+        return 'bg-astro-gold/10 text-astro-gold dark:bg-astro-gold/20 dark:text-astro-gold/80';
+      case 'planned':
+        return 'bg-astro-blue/10 text-astro-blue dark:bg-astro-blue/20 dark:text-astro-blue/80';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
     }
@@ -219,7 +218,7 @@ const Projects = () => {
                     setSearchQuery('');
                     setFilterBy('');
                   }}
-                  className="text-astro-blue hover:text-blue-700 transition-colors"
+                  className="text-astro-blue hover:text-astro-blue/80 transition-colors"
                 >
                   Clear all filters
                 </button>
@@ -268,7 +267,7 @@ const Projects = () => {
                   <div className="flex items-center justify-between pt-2">
                     <Link 
                       to={`/projects/${project.id}`}
-                      className="inline-flex items-center space-x-2 text-astro-blue hover:text-blue-700 transition-colors duration-300 font-medium"
+                      className="inline-flex items-center space-x-2 text-astro-blue hover:text-astro-blue/80 transition-colors duration-300 font-medium"
                     >
                       <span>View Details</span>
                       <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
@@ -299,7 +298,7 @@ const Projects = () => {
           </p>
           <Link 
             to="/contact"
-            className="inline-flex items-center bg-astro-blue hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105"
+            className="inline-flex items-center bg-astro-blue hover:bg-astro-blue/80 text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105"
           >
             Get Started
             <ArrowRight className="ml-2 h-5 w-5" />

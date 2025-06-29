@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -34,11 +34,7 @@ const PrivacyTermsManager = () => {
   const [privacyForm, setPrivacyForm] = useState({ title: '', content: '' });
   const [termsForm, setTermsForm] = useState({ title: '', content: '' });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const [privacy, terms] = await Promise.all([
@@ -60,7 +56,11 @@ const PrivacyTermsManager = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handlePrivacySave = async () => {
     try {
@@ -281,4 +281,4 @@ const PrivacyTermsManager = () => {
   );
 };
 
-export default PrivacyTermsManager; 
+export default PrivacyTermsManager;

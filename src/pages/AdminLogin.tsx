@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -36,24 +36,26 @@ const AdminLogin = () => {
     setLoading(true);
     setError('');
 
-    // Mock authentication - replace with real authentication
-    if (credentials.email === 'admin@astroforge.com' && credentials.password === 'AstroForge2024!') {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      login();
+    try {
+      const result = await login(credentials.email, credentials.password);
       
-      // Redirect to the original page or default to admin dashboard
-      const redirectPath = localStorage.getItem('adminRedirectPath');
-      if (redirectPath && redirectPath !== '/admin/login') {
-        localStorage.removeItem('adminRedirectPath'); // Clean up
-        navigate(redirectPath);
+      if (result.success) {
+        // Redirect to the original page or default to admin dashboard
+        const redirectPath = localStorage.getItem('adminRedirectPath');
+        if (redirectPath && redirectPath !== '/admin/login') {
+          localStorage.removeItem('adminRedirectPath'); // Clean up
+          navigate(redirectPath);
+        } else {
+          navigate('/admin');
+        }
       } else {
-        navigate('/admin');
+        setError(result.error || 'Login failed');
       }
-    } else {
-      setError('Invalid email or password');
+    } catch (error) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   // Show loading while checking authentication status
@@ -135,21 +137,11 @@ const AdminLogin = () => {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-astro-blue text-white hover:bg-blue-700"
+                className="w-full bg-astro-blue text-white hover:bg-astro-blue/80"
               >
                 {loading ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
-
-            <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-                Demo credentials:
-              </p>
-              <p className="text-sm text-gray-700 dark:text-gray-300 text-center mt-1">
-                Email: admin@astroforge.com<br />
-                Password: AstroForge2024!
-              </p>
-            </div>
           </CardContent>
         </Card>
       </div>

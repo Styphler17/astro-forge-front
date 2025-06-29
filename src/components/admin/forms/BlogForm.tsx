@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
@@ -27,10 +27,9 @@ interface BlogPost {
 interface BlogFormProps {
   post?: BlogPost;
   onSave?: () => void;
-  onCancel?: () => void;
 }
 
-const BlogForm: React.FC<BlogFormProps> = ({ post, onSave, onCancel }) => {
+const BlogForm: React.FC<BlogFormProps> = ({ post, onSave }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { id } = useParams();

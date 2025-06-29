@@ -2,25 +2,7 @@
 
 ## Quick Deploy Options
 
-### Option 1: Vercel (Recommended - Free)
-```bash
-# Install Vercel CLI
-npm install -g vercel
-
-# Deploy
-vercel --prod
-```
-
-### Option 2: Netlify (Free)
-```bash
-# Install Netlify CLI
-npm install -g netlify-cli
-
-# Deploy
-netlify deploy --prod
-```
-
-### Option 3: GitHub Pages
+### Option 1: GitHub Pages
 ```bash
 # Build the project
 npm run build:prod
@@ -99,15 +81,10 @@ git push heroku main
 
 ## 📱 Custom Domain Setup
 
-### Vercel
-1. Go to Project Settings → Domains
-2. Add your domain
-3. Update DNS records
-
-### Netlify
-1. Go to Site Settings → Domain Management
-2. Add custom domain
-3. Update DNS records
+### GitHub Pages
+1. Go to Repository Settings → Pages
+2. Set source to GitHub Actions
+3. Configure custom domain in settings
 
 ## 🚨 Troubleshooting
 

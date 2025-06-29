@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-import { Calendar, User, ArrowLeft, Clock, Share2, Facebook, Twitter, Linkedin, MessageCircle } from 'lucide-react';
+import { Calendar, User, ArrowLeft, Clock, Facebook, Twitter, Linkedin, MessageCircle } from 'lucide-react';
 import { apiClient } from '../integrations/api/client';
 import type { BlogPost } from '../integrations/api/client';
 
@@ -122,7 +122,7 @@ const BlogPost = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}
         <div className="mb-6">
-          <Button variant="ghost" asChild className="text-astro-blue hover:text-blue-700">
+          <Button variant="ghost" asChild className="text-astro-blue hover:text-astro-blue/80">
             <Link to="/blog" className="flex items-center space-x-2">
               <ArrowLeft className="h-4 w-4" />
               <span>Back to Blog</span>
@@ -148,7 +148,7 @@ const BlogPost = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <Clock className="h-4 w-4" />
-                <span>{getReadTime(post.content)}</span>
+                <span>{getReadTime(post.content || '')}</span>
               </div>
             </div>
 
@@ -180,7 +180,7 @@ const BlogPost = () => {
               <CardContent className="p-8">
                 <div 
                   className="prose prose-slate dark:prose-invert max-w-none prose-lg"
-                  dangerouslySetInnerHTML={{ __html: post.content }}
+                  dangerouslySetInnerHTML={{ __html: post.content || '' }}
                 />
               </CardContent>
             </Card>
@@ -293,10 +293,10 @@ const BlogPost = () => {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Clock className="h-3 w-3" />
-                        <span>{getReadTime(relatedPost.content)}</span>
+                        <span>{getReadTime(relatedPost.content || '')}</span>
                       </div>
                     </div>
-                    <Button asChild className="w-full bg-astro-blue hover:bg-blue-700 text-white">
+                    <Button asChild className="w-full bg-astro-blue hover:bg-astro-blue/80 text-white">
                       <Link to={`/blog/${relatedPost.slug}`}>
                         Read More
                       </Link>
@@ -314,7 +314,7 @@ const BlogPost = () => {
           )}
           
           <div className="text-center">
-            <Button asChild className="bg-astro-blue hover:bg-blue-700 text-white">
+            <Button asChild className="bg-astro-blue hover:bg-astro-blue/80 text-white">
               <Link to="/blog">
                 View All Posts
               </Link>

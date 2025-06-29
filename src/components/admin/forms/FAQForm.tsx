@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
@@ -24,10 +24,9 @@ interface FAQ {
 interface FAQFormProps {
   faq?: FAQ;
   onSave?: () => void;
-  onCancel?: () => void;
 }
 
-const FAQForm: React.FC<FAQFormProps> = ({ faq, onSave, onCancel }) => {
+const FAQForm: React.FC<FAQFormProps> = ({ faq, onSave }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { id } = useParams();
@@ -52,7 +51,10 @@ const FAQForm: React.FC<FAQFormProps> = ({ faq, onSave, onCancel }) => {
           const allFaqs = await apiClient.getAllFaqs();
           const faqData = allFaqs.find(f => f.id === id);
           if (faqData) {
-            setFormData(faqData);
+            setFormData({
+              ...faqData,
+              is_active: Boolean(faqData.is_active)
+            });
           } else {
             setError('FAQ not found');
           }
@@ -131,7 +133,11 @@ const FAQForm: React.FC<FAQFormProps> = ({ faq, onSave, onCancel }) => {
       <div className="space-y-6">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-300 rounded w-1/4 mb-4"></div>
-          <div className="h-64 bg-gray-300 rounded"></div>
+          <div className="space-y-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 bg-gray-300 rounded"></div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -147,11 +153,8 @@ const FAQForm: React.FC<FAQFormProps> = ({ faq, onSave, onCancel }) => {
             className="flex items-center space-x-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Back to FAQs</span>
+            <span>Back to FAQ</span>
           </Button>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            {id || faq ? 'Edit FAQ' : 'Create New FAQ'}
-          </h1>
         </div>
       </div>
 
@@ -159,93 +162,100 @@ const FAQForm: React.FC<FAQFormProps> = ({ faq, onSave, onCancel }) => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <HelpCircle className="h-5 w-5" />
-            <span>FAQ Details</span>
+            <span>{faq ? 'Edit FAQ' : 'Create New FAQ'}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
                 {error}
               </div>
             )}
 
-            <div>
-              <Label htmlFor="question">Question *</Label>
+            <div className="space-y-2">
+              <Label htmlFor="question">Question</Label>
               <Input
                 id="question"
                 value={formData.question || ''}
                 onChange={(e) => handleInputChange('question', e.target.value)}
-                required
                 placeholder="Enter the question..."
+                required
               />
             </div>
 
-            <div>
-              <Label htmlFor="answer">Answer *</Label>
+            <div className="space-y-2">
+              <Label htmlFor="answer">Answer</Label>
               <Textarea
                 id="answer"
                 value={formData.answer || ''}
                 onChange={(e) => handleInputChange('answer', e.target.value)}
+                placeholder="Enter the answer..."
                 rows={6}
                 required
-                placeholder="Enter the answer..."
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select value={formData.category || 'General'} onValueChange={(value) => handleInputChange('category', value)}>
+                <Select
+                  value={formData.category || 'General'}
+                  onValueChange={(value) => handleInputChange('category', value)}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
+                    <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="General">General</SelectItem>
-                    <SelectItem value="Services">Services</SelectItem>
-                    <SelectItem value="Projects">Projects</SelectItem>
-                    <SelectItem value="Contact">Contact</SelectItem>
-                    <SelectItem value="Careers">Careers</SelectItem>
+                    <SelectItem value="Technical">Technical</SelectItem>
+                    <SelectItem value="Billing">Billing</SelectItem>
+                    <SelectItem value="Support">Support</SelectItem>
+                    <SelectItem value="Account">Account</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="display_order">Display Order</Label>
                 <Input
                   id="display_order"
                   type="number"
                   value={formData.display_order || 0}
                   onChange={(e) => handleInputChange('display_order', parseInt(e.target.value) || 0)}
-                  min="0"
+                  placeholder="0"
                 />
               </div>
             </div>
 
             <div className="flex items-center space-x-2">
               <input
-                id="is_active"
                 type="checkbox"
-                checked={formData.is_active || false}
+                id="is_active"
+                checked={formData.is_active ?? true}
                 onChange={(e) => handleInputChange('is_active', e.target.checked)}
-                className="rounded"
-                aria-label="Active status"
+                className="rounded border-gray-300"
                 title="Toggle FAQ active status"
               />
               <Label htmlFor="is_active">Active</Label>
             </div>
 
             <div className="flex justify-end space-x-2">
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => navigate('/admin/faq')}
+                disabled={loading}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading} className="flex items-center space-x-2">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="bg-astro-blue text-white hover:bg-astro-blue/80 flex items-center space-x-2"
+              >
                 <Save className="h-4 w-4" />
-                <span>{loading ? 'Saving...' : (id || faq ? 'Update FAQ' : 'Create FAQ')}</span>
+                <span>{loading ? 'Saving...' : 'Save FAQ'}</span>
               </Button>
             </div>
           </form>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import Hero from '../components/Hero';
 import ServicesSection from '../components/ServicesSection';
@@ -74,7 +74,7 @@ const Index = () => {
                   key={member.id}
                   name={member.name}
                   position={member.position}
-                  bio={member.bio}
+                  bio={member.bio || ''}
                   image={member.image_url || '/placeholder.svg'}
                   linkedin={member.linkedin_url}
                   email={member.email}

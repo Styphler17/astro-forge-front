@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { Calendar, User, ArrowRight, Clock } from 'lucide-react';
+import { Calendar, User, ArrowRight } from 'lucide-react';
 import { apiClient } from '../integrations/api/client';
 import FilterBar from '../components/ui/filter-bar';
-import { Button } from '../components/ui/button';
 import type { BlogPost } from '../integrations/api/client';
 
 const Blog = () => {
@@ -44,8 +43,8 @@ const Blog = () => {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(post =>
         post.title.toLowerCase().includes(query) ||
-        post.excerpt.toLowerCase().includes(query) ||
-        post.content.toLowerCase().includes(query)
+        (post.excerpt || '').toLowerCase().includes(query) ||
+        (post.content || '').toLowerCase().includes(query)
       );
     }
 
@@ -236,7 +235,7 @@ const Blog = () => {
                       setSearchQuery('');
                       setFilterBy('');
                     }}
-                    className="text-astro-blue hover:text-blue-700 transition-colors"
+                    className="text-astro-blue hover:text-astro-blue/80 transition-colors"
                   >
                     Clear all filters
                   </button>
@@ -245,7 +244,7 @@ const Blog = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredAndSortedPosts.map((post, index) => (
+              {filteredAndSortedPosts.map((post) => (
                 <article
                   key={post.id}
                   className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 fade-in-scroll"
@@ -264,7 +263,7 @@ const Blog = () => {
                         Blog
                       </span>
                       <span className="text-gray-500 dark:text-gray-400 text-sm">
-                        {getReadTime(post.content)}
+                        {getReadTime(post.content || '')}
                       </span>
                     </div>
                     
@@ -289,7 +288,7 @@ const Blog = () => {
                     
                     <Link 
                       to={`/blog/${post.slug}`}
-                      className="flex items-center text-astro-blue hover:text-astro-gold transition-colors duration-300 font-semibold"
+                      className="flex items-center text-astro-blue hover:text-astro-blue/80 transition-colors duration-300 font-semibold"
                     >
                       Read More
                       <ArrowRight className="h-4 w-4 ml-1" />

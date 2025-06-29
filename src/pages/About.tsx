@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
 import { Users, Target, Award, Globe, TrendingUp, Heart, User } from 'lucide-react';
-import { apiClient, TeamMember, SiteSetting } from '../integrations/api/client';
+import { apiClient, TeamMember } from '../integrations/api/client';
 import TeamMemberCard from '../components/TeamMemberCard';
 
 interface AboutStats {
@@ -136,7 +134,7 @@ const About = () => {
   }, []);
 
   // Icon mapping for stats
-  const iconMap: { [key: string]: React.ComponentType<any> } = {
+  const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
     Users,
     Target,
     Award,
@@ -290,7 +288,7 @@ const About = () => {
                   key={member.id}
                   name={member.name}
                   position={member.position}
-                  bio={member.bio}
+                  bio={member.bio || ''}
                   image={member.image_url || '/placeholder.svg'}
                   linkedin={member.linkedin_url}
                   email={member.email}

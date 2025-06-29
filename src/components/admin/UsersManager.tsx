@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { apiClient, User } from '../../integrations/api/client';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -7,15 +7,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Pencil, Trash, Plus, Search, RefreshCw, User as UserIcon, Mail, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../hooks/use-toast';
+import { useAuth } from '../../hooks/useAuth';
 
 const UsersManager: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const fetchUsers = useCallback(async () => {
@@ -23,10 +25,10 @@ const UsersManager: React.FC = () => {
       setRefreshing(true);
       const data = await apiClient.getUsers();
       setUsers(data || []);
-      setError(null);
+      
     } catch (err) {
       console.error('Error fetching users:', err);
-      setError('Failed to load users');
+      
       toast({
         title: "Error",
         description: "Failed to load users. Please try again.",
@@ -38,19 +40,13 @@ const UsersManager: React.FC = () => {
     }
   }, [toast]);
 
-  const fetchCurrentUser = useCallback(async () => {
-    try {
-      const data = await apiClient.getCurrentUser();
-      setCurrentUserId(data.id);
-    } catch (error) {
-      console.error('Error fetching current user:', error);
-    }
-  }, []);
-
   useEffect(() => {
     fetchUsers();
-    fetchCurrentUser();
-  }, [fetchUsers, fetchCurrentUser]);
+    // Set current user ID from AuthContext
+    if (user?.id) {
+      setCurrentUserId(user.id);
+    }
+  }, [fetchUsers, user?.id]);
 
   const handleDelete = async (id: string, name: string) => {
     // Check for self-deletion
@@ -141,7 +137,7 @@ const UsersManager: React.FC = () => {
       case 'admin':
         return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
       case 'editor':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+        return 'bg-astro-blue/10 text-astro-blue dark:bg-astro-blue/20 dark:text-astro-blue/80';
       case 'viewer':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
       default:
@@ -174,8 +170,8 @@ const UsersManager: React.FC = () => {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-300 rounded w-1/4 mb-4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-80 bg-gray-300 rounded"></div>
+            {Array.from({ length: 6 }, (_, i) => (
+              <div key={`users-skeleton-${i}`} className="h-80 bg-gray-300 rounded"></div>
             ))}
           </div>
         </div>
@@ -186,26 +182,26 @@ const UsersManager: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Users Management</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Users Management</h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">
             Manage user accounts and permissions ({users.length} total)
           </p>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
           <Button 
             onClick={fetchUsers}
             disabled={refreshing}
             variant="outline"
-            className="flex items-center space-x-2"
+            className="flex items-center justify-center space-x-2 w-full sm:w-auto"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </Button>
           <Button 
             onClick={() => navigate('/admin/users/new')}
-            className="bg-astro-blue text-white hover:bg-blue-700 flex items-center space-x-2"
+            className="bg-astro-blue text-white hover:bg-astro-blue/80 flex items-center justify-center space-x-2 w-full sm:w-auto"
           >
             <Plus className="h-4 w-4" />
             <span>New User</span>
@@ -264,7 +260,7 @@ const UsersManager: React.FC = () => {
                       </div>
                     </Badge>
                     {currentUserId === user.id && (
-                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                      <Badge className="bg-astro-blue/10 text-astro-blue dark:bg-astro-blue/20 dark:text-astro-blue/80">
                         Current User
                       </Badge>
                     )}
@@ -329,7 +325,7 @@ const UsersManager: React.FC = () => {
             {!searchTerm && (
               <Button 
                 onClick={() => navigate('/admin/users/new')}
-                className="mt-4 bg-astro-blue text-white hover:bg-blue-700"
+                className="mt-4 bg-astro-blue text-white hover:bg-astro-blue/80"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add First User

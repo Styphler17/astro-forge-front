@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -53,10 +52,12 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				'astro-blue': '#0066cc',
-				'astro-gold': '#f0a500',
-				'astro-white': '#ffffff',
-				'astro-accent': '#007bff',
+				'astro-blue': 'var(--astro-blue)',
+				'astro-gold': 'var(--astro-gold)',
+				'astro-white': 'var(--astro-white)',
+				'astro-accent': 'var(--astro-accent)',
+				'primary-color': 'var(--primary-color)',
+				'accent-color': 'var(--accent-color)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

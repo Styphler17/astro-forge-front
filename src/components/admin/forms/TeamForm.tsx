@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
@@ -27,10 +27,10 @@ interface TeamMember {
 interface TeamFormProps {
   member?: TeamMember;
   onSave?: () => void;
-  onCancel?: () => void;
+  
 }
 
-const TeamForm: React.FC<TeamFormProps> = ({ member, onSave, onCancel }) => {
+const TeamForm: React.FC<TeamFormProps> = ({ member, onSave }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { id } = useParams();
@@ -56,7 +56,10 @@ const TeamForm: React.FC<TeamFormProps> = ({ member, onSave, onCancel }) => {
         try {
           setInitialLoading(true);
           const data = await apiClient.getTeamMemberById(id);
-          setFormData(data);
+          setFormData({
+            ...data,
+            is_active: Boolean(data.is_active)
+          });
         } catch (error) {
           console.error('Error fetching team member:', error);
           setError('Failed to load team member data');
@@ -253,11 +256,10 @@ const TeamForm: React.FC<TeamFormProps> = ({ member, onSave, onCancel }) => {
                 <input
                   id="is_active"
                   type="checkbox"
-                  checked={formData.is_active || false}
+                  checked={Boolean(formData.is_active)}
                   onChange={(e) => handleInputChange('is_active', e.target.checked)}
-                  className="h-4 w-4"
+                  className="rounded"
                   aria-label="Active status"
-                  title="Toggle team member active status"
                 />
                 <Label htmlFor="is_active">Active</Label>
               </div>

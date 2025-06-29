@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 28, 2025 at 07:33 AM
+-- Generation Time: Jun 29, 2025 at 04:37 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -131,10 +131,10 @@ CREATE TABLE `career_culture` (
 --
 
 INSERT INTO `career_culture` (`id`, `title`, `description`, `image_url`, `display_order`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'Innovation-Driven Environment', 'We foster a culture of innovation where new ideas are encouraged and creativity is celebrated. Our team members are empowered to think outside the box and bring fresh perspectives to every project.', '/images/culture/innovation.jpg', 1, 1, '2025-06-28 05:05:01', '2025-06-28 05:05:01'),
-(2, 'Diversity & Inclusion', 'We believe in the power of diverse perspectives. Our team represents different backgrounds, experiences, and viewpoints, creating a rich and inclusive work environment.', '/images/culture/diversity.jpg', 2, 1, '2025-06-28 05:05:01', '2025-06-28 05:05:01'),
-(3, 'Collaborative Spirit', 'Success is a team effort. We work together, share knowledge, and support each other to achieve our common goals.', '/images/culture/collaboration.jpg', 3, 1, '2025-06-28 05:05:01', '2025-06-28 05:05:01'),
-(4, 'Impact-Focused', 'Every project we undertake has the potential to make a real difference in communities across Africa. We\'re driven by the impact we can create.', '/images/culture/impact.jpg', 4, 1, '2025-06-28 05:05:01', '2025-06-28 05:05:01');
+(1, 'Innovation-Driven Environment', 'We foster a culture of innovation where new ideas are encouraged and creativity is celebrated. Our team members are empowered to think outside the box and bring fresh perspectives to every project.', '/images/culture/innovation.png', 1, 1, '2025-06-28 05:05:01', '2025-06-28 07:30:52'),
+(2, 'Diversity & Inclusion', 'We believe in the power of diverse perspectives. Our team represents different backgrounds, experiences, and viewpoints, creating a rich and inclusive work environment.', '/images/culture/diversity.png', 2, 1, '2025-06-28 05:05:01', '2025-06-28 08:02:21'),
+(3, 'Collaborative Spirit', 'Success is a team effort. We work together, share knowledge, and support each other to achieve our common goals.', '/images/culture/collaboration.png', 3, 1, '2025-06-28 05:05:01', '2025-06-28 08:07:09'),
+(4, 'Impact-Focused', 'Every project we undertake has the potential to make a real difference in communities across Africa. We\'re driven by the impact we can create.', '/images/culture/impact.png', 4, 1, '2025-06-28 05:05:01', '2025-06-28 08:13:07');
 
 -- --------------------------------------------------------
 
@@ -187,7 +187,7 @@ CREATE TABLE `contact_messages` (
 
 INSERT INTO `contact_messages` (`id`, `name`, `email`, `subject`, `message`, `is_read`, `created_at`) VALUES
 (1, 'John Doe', 'john@example.com', 'General Inquiry', 'Hello, I would like to learn more about your services.', 0, '2025-06-27 21:49:12'),
-(2, 'Jane Smith', 'jane@example.com', 'Project Discussion', 'We have a potential project we would like to discuss with your team.', 0, '2025-06-27 21:49:12'),
+(2, 'Jane Smith', 'jane@example.com', 'Project Discussion', 'We have a potential project we would like to discuss with your team.', 1, '2025-06-27 21:49:12'),
 (3, 'Mike Johnson', 'mike@example.com', 'Partnership Opportunity', 'I am interested in exploring partnership opportunities with Astro Forge Holdings.', 0, '2025-06-27 21:49:12');
 
 -- --------------------------------------------------------
@@ -247,10 +247,34 @@ CREATE TABLE `job_positions` (
 
 INSERT INTO `job_positions` (`id`, `title`, `department`, `location`, `employment_type`, `experience_level`, `description`, `requirements`, `benefits`, `is_active`, `display_order`, `created_at`, `updated_at`) VALUES
 (1, 'Senior Software Engineer', 'Engineering', 'Remote', 'full-time', '5+ years', 'Join our engineering team to build innovative solutions that transform industries across Africa. You will work on cutting-edge technologies and collaborate with a diverse team of professionals.', '[\"Strong experience with React, Node.js, and TypeScript\", \"Experience with cloud platforms (AWS, Azure, or GCP)\", \"Knowledge of database design and optimization\", \"Experience with microservices architecture\", \"Strong problem-solving and analytical skills\"]', '[\"Competitive salary and equity package\", \"Flexible remote work options\", \"Health insurance and wellness programs\", \"Professional development budget\", \"Annual team retreats\"]', 1, 1, '2025-06-27 22:35:40', '2025-06-27 22:35:40'),
-(2, 'Project Manager', 'Operations', 'Lagos, Nigeria', 'full-time', '3+ years', 'Lead strategic projects that drive our mission of sustainable development across Africa. You will manage cross-functional teams and ensure successful project delivery.', '[\"PMP or PRINCE2 certification preferred\", \"Experience managing cross-functional teams\", \"Strong stakeholder management skills\", \"Background in infrastructure or development projects\", \"Excellent communication and leadership abilities\"]', '[\"Competitive salary package\", \"Performance-based bonuses\", \"Comprehensive health coverage\", \"Travel opportunities across Africa\", \"Professional development support\"]', 1, 2, '2025-06-27 22:35:40', '2025-06-27 22:35:40'),
-(3, 'Marketing Specialist', 'Marketing', 'Nairobi, Kenya', 'full-time', '2+ years', 'Help us tell the story of Astro Forge Holdings and our impact across the continent. You will develop and execute marketing strategies that drive brand awareness.', '[\"Experience with digital marketing campaigns\", \"Proficiency in social media management\", \"Content creation and copywriting skills\", \"Analytics and reporting experience\", \"Creative thinking and strategic planning\"]', '[\"Creative work environment\", \"Professional development opportunities\", \"Health and wellness benefits\", \"Flexible work arrangements\", \"Performance bonuses\"]', 1, 3, '2025-06-27 22:35:40', '2025-06-27 22:35:40'),
-(4, 'Data Analyst', 'Analytics', 'Remote', 'full-time', '2+ years', 'Transform data into insights that drive our strategic decisions and operational excellence. You will work with large datasets and create meaningful reports.', '[\"Proficiency in SQL and Python\", \"Experience with data visualization tools\", \"Statistical analysis skills\", \"Business intelligence experience\", \"Strong analytical and problem-solving abilities\"]', '[\"Competitive salary\", \"Remote work flexibility\", \"Learning and development budget\", \"Health insurance coverage\", \"Performance-based incentives\"]', 1, 4, '2025-06-27 22:35:40', '2025-06-27 22:35:40'),
-(5, 'Business Development Manager', 'Business Development', 'Johannesburg, South Africa', 'full-time', '4+ years', 'Drive business growth and partnerships across Africa. You will identify new opportunities and build relationships with key stakeholders.', '[\"Proven track record in business development\", \"Experience in the African market\", \"Strong networking and relationship building skills\", \"Strategic thinking and market analysis\", \"Excellent presentation and negotiation skills\"]', '[\"Competitive salary with commission\", \"Travel opportunities\", \"Professional development support\", \"Health and wellness benefits\", \"Performance-based bonuses\"]', 1, 5, '2025-06-27 22:35:40', '2025-06-27 22:35:40');
+(6, 'test', 'test', 'test', 'full-time', '5+', 'testing only', '[\"test\",\"testing\"]', '[\"tttt\",\"tttttttt\"]', 1, 6, '2025-06-28 06:22:03', '2025-06-28 06:23:11');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pages`
+--
+
+CREATE TABLE `pages` (
+  `id` varchar(36) NOT NULL DEFAULT uuid(),
+  `title` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `content` longtext DEFAULT NULL,
+  `meta_description` text DEFAULT NULL,
+  `is_published` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `pages`
+--
+
+INSERT INTO `pages` (`id`, `title`, `slug`, `content`, `meta_description`, `is_published`, `created_at`, `updated_at`) VALUES
+('04fbc14a-5487-11f0-bc07-345a60293f45', 'About Our Company', 'about-company', '<h2>Welcome to Our Company</h2>\n<p>We are a leading provider of innovative solutions across multiple industries. Our mission is to deliver exceptional value to our clients through cutting-edge technology and dedicated service.</p>\n\n<h3>Our Vision</h3>\n<p>To be the most trusted partner in digital transformation, helping businesses thrive in the modern world.</p>\n\n<h3>Our Values</h3>\n<ul>\n  <li><strong>Innovation</strong> - We constantly push boundaries and explore new possibilities</li>\n  <li><strong>Integrity</strong> - We do what\'s right, even when no one is watching</li>\n  <li><strong>Excellence</strong> - We strive for perfection in everything we do</li>\n  <li><strong>Collaboration</strong> - We work together to achieve common goals</li>\n</ul>\n\n<h3>Our Services</h3>\n<p>We offer a comprehensive range of services designed to meet the diverse needs of modern businesses:</p>\n<ul>\n  <li>Web Development & Design</li>\n  <li>Mobile Application Development</li>\n  <li>Cloud Infrastructure Solutions</li>\n  <li>Digital Marketing & SEO</li>\n  <li>Consulting & Strategy</li>\n</ul>\n\n<h3>Why Choose Us?</h3>\n<p>With years of experience and a proven track record of success, we have helped countless businesses achieve their digital transformation goals. Our team of experts is committed to delivering results that exceed expectations.</p>', 'Learn more about our company, mission, vision, and values. Discover how we can help your business grow and succeed in the digital age.', 1, '2025-06-29 01:18:52', '2025-06-29 01:18:52'),
+('04fc95b7-5487-11f0-bc07-345a60293f45', 'Our Services', 'services-overview', '<h2>Comprehensive Service Solutions</h2>\n<p>We provide a wide range of professional services to help your business succeed in today\'s competitive market.</p>\n\n<h3>Web Development</h3>\n<p>Custom web applications and websites built with the latest technologies and best practices. We create responsive, user-friendly solutions that drive results.</p>\n\n<h3>Mobile Development</h3>\n<p>Native and cross-platform mobile applications for iOS and Android. We focus on creating intuitive user experiences and robust functionality.</p>\n\n<h3>Cloud Solutions</h3>\n<p>Scalable cloud infrastructure and migration services. We help businesses leverage the power of cloud computing to improve efficiency and reduce costs.</p>\n\n<h3>Digital Marketing</h3>\n<p>Comprehensive digital marketing strategies including SEO, PPC, social media, and content marketing to increase your online presence and drive growth.</p>\n\n<h3>Consulting Services</h3>\n<p>Strategic consulting to help you make informed decisions about technology investments and digital transformation initiatives.</p>', 'Explore our comprehensive range of professional services including web development, mobile apps, cloud solutions, and digital marketing.', 1, '2025-06-29 01:18:52', '2025-06-29 01:18:52'),
+('04fd4af0-5487-11f0-bc07-345a60293f45', 'Contact Information', 'contact-info', '<h2>Get in Touch</h2>\n<p>We\'re here to help you succeed. Reach out to us for any questions, inquiries, or to discuss your project requirements.</p>\n\n<h3>Contact Details</h3>\n<div style=\"background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n  <p><strong>Email:</strong> <a href=\"mailto:contact@astroforge.com\">contact@astroforge.com</a></p>\n  <p><strong>Phone:</strong> +1 (555) 123-4567</p>\n  <p><strong>Address:</strong> 123 Business Plaza, Innovation District, Tech City, TC 12345</p>\n  <p><strong>Business Hours:</strong> Monday - Friday, 9:00 AM - 6:00 PM EST</p>\n</div>\n\n<h3>Send Us a Message</h3>\n<p>Use our contact form to send us a detailed message about your project or inquiry. We typically respond within 24 hours during business days.</p>\n\n<h3>Schedule a Consultation</h3>\n<p>Ready to discuss your project? Schedule a free consultation call with our team to explore how we can help you achieve your goals.</p>\n\n<h3>Emergency Support</h3>\n<p>For urgent technical issues or support requests, please call our support line at +1 (555) 987-6543.</p>', 'Contact us for questions, project inquiries, or to schedule a consultation. Find our contact details and business hours.', 1, '2025-06-29 01:18:52', '2025-06-29 01:18:52'),
+('0af15b37-5487-11f0-bc07-345a60293f45', 'test page', 'test-page', 'random me', 'testing', 1, '2025-06-29 01:19:02', '2025-06-29 01:19:02');
 
 -- --------------------------------------------------------
 
@@ -271,7 +295,7 @@ CREATE TABLE `privacy_policy` (
 --
 
 INSERT INTO `privacy_policy` (`id`, `title`, `content`, `last_updated`, `created_at`) VALUES
-(1, 'Privacy Policy', '<h2>Privacy Policy</h2>\n<p>At Astro Forge Holdings, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you visit our website or use our services.</p>\n\n<h3>Information We Collect</h3>\n<p>We may collect personal information such as your name, email address, phone number, and company details when you contact us, subscribe to our newsletter, or use our services. We also collect technical information about your device and browsing activity.</p>\n\n<h3>How We Use Your Information</h3>\n<p>We use the information we collect to:</p>\n<ul>\n<li>Provide and improve our services</li>\n<li>Communicate with you about projects and updates</li>\n<li>Send newsletters and marketing materials (with your consent)</li>\n<li>Comply with legal obligations</li>\n<li>Protect our rights and prevent fraud</li>\n</ul>\n\n<h3>Data Security</h3>\n<p>We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. Your data is stored securely and accessed only by authorized personnel.</p>', '2025-06-27 22:06:17', '2025-06-27 22:06:17');
+(1, 'Privacy Policy', '<h2>Privacy Policy</h2>\n<p>At Astro Forge Holdings, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you visit our website or use our services.</p>\n<br>\n<h3>Information We Collect</h3>\n<p>We may collect personal information such as your name, email address, phone number, and company details when you contact us, subscribe to our newsletter, or use our services. We also collect technical information about your device and browsing activity.</p>\n<br>\n<h3>How We Use Your Information</h3>\n<p>We use the information we collect to:</p>\n<ul>\n<li>Provide and improve our services</li>\n<li>Communicate with you about projects and updates</li>\n<li>Send newsletters and marketing materials (with your consent)</li>\n<li>Comply with legal obligations</li>\n<li>Protect our rights and prevent fraud</li>\n</ul>\n<br>\n<h3>Data Security</h3>\n<p>We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. Your data is stored securely and accessed only by authorized personnel.</p>', '2025-06-28 22:46:38', '2025-06-27 22:06:17');
 
 -- --------------------------------------------------------
 
@@ -365,6 +389,13 @@ INSERT INTO `site_settings` (`id`, `setting_key`, `setting_type`, `setting_value
 ('97677fd5-51c3-11f0-b8e2-345a60293f45', 'theme_colors', 'json', '{\"primary\": \"#3B82F6\", \"secondary\": \"#1F2937\", \"accent\": \"#F59E0B\"}', '2025-06-25 12:51:41'),
 ('9767800d-51c3-11f0-b8e2-345a60293f45', 'logo_url', 'string', '\"\"', '2025-06-25 12:51:41'),
 ('9767803c-51c3-11f0-b8e2-345a60293f45', 'footer_text', 'string', '\"© 2024 Astro Forge Holdings. All rights reserved.\"', '2025-06-25 12:51:41'),
+('b04665cc-546e-11f0-bc07-345a60293f45', 'theme_mode', 'string', '\"dark\"', '2025-06-29 00:38:47'),
+('b047fbdd-546e-11f0-bc07-345a60293f45', 'primary_color', 'string', '\"#3B82F6\"', '2025-06-28 22:24:42'),
+('b04800f0-546e-11f0-bc07-345a60293f45', 'accent_color', 'string', '\"#F59E0B\"', '2025-06-28 22:24:42'),
+('c909bfab-5473-11f0-bc07-345a60293f45', 'astro_blue', 'string', '\"#0066cc\"', '2025-06-28 23:22:50'),
+('c909d99a-5473-11f0-bc07-345a60293f45', 'astro_gold', 'string', '\"#f0a500\"', '2025-06-28 23:22:50'),
+('c909da77-5473-11f0-bc07-345a60293f45', 'astro_white', 'string', '\"#ffffff\"', '2025-06-28 23:01:11'),
+('c909db07-5473-11f0-bc07-345a60293f45', 'astro_accent', 'string', '\"#29619e\"', '2025-06-28 23:20:04'),
 ('ef405f1a-5328-11f0-abea-345a60293f45', 'hero_badge_text', 'string', '\"Innovation • Sustainability • Growth\"', '2025-06-27 08:57:06'),
 ('ef405fe2-5328-11f0-abea-345a60293f45', 'hero_stats_projects', 'string', '\"500+\"', '2025-06-27 08:57:06'),
 ('ef40607a-5328-11f0-abea-345a60293f45', 'hero_stats_countries', 'string', '\"50+\"', '2025-06-27 08:57:06'),
@@ -504,15 +535,20 @@ CREATE TABLE `users` (
   `role` enum('admin','editor','viewer') DEFAULT 'viewer',
   `is_active` tinyint(1) DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `image_url` varchar(255) DEFAULT NULL,
+  `bio` text DEFAULT NULL,
+  `phone` varchar(50) DEFAULT NULL,
+  `timezone` varchar(100) DEFAULT NULL,
+  `language` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `password_hash`, `name`, `role`, `is_active`, `created_at`, `updated_at`) VALUES
-('a25e0009-52d1-11f0-b8e2-345a60293f45', 'test@example.com', 'testpass123', 'Test User', 'admin', 1, '2025-06-26 21:04:35', '2025-06-26 21:24:11');
+INSERT INTO `users` (`id`, `email`, `password_hash`, `name`, `role`, `is_active`, `created_at`, `updated_at`, `image_url`, `bio`, `phone`, `timezone`, `language`) VALUES
+('db94dae0-548c-11f0-bc07-345a60293f45', 'styphler17@gmail.com', '$2b$10$HRjUtPhsmwNLjt.6HSr8YubK4R96761S/yo6iEZCZDvvnY9VqTtqK', 'Super Admin', 'admin', 1, '2025-06-29 02:00:40', '2025-06-29 02:00:40', NULL, NULL, NULL, NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -573,6 +609,16 @@ ALTER TABLE `faqs`
 --
 ALTER TABLE `job_positions`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `pages`
+--
+ALTER TABLE `pages`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `slug` (`slug`),
+  ADD KEY `idx_slug` (`slug`),
+  ADD KEY `idx_published` (`is_published`),
+  ADD KEY `idx_created_at` (`created_at`);
 
 --
 -- Indexes for table `privacy_policy`
@@ -681,7 +727,7 @@ ALTER TABLE `faqs`
 -- AUTO_INCREMENT for table `job_positions`
 --
 ALTER TABLE `job_positions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `privacy_policy`
