@@ -1,0 +1,6 @@
+-- Add additional profile fields to users table
+ALTER TABLE users 
+ADD COLUMN bio TEXT DEFAULT NULL,
+ADD COLUMN phone VARCHAR(50) DEFAULT NULL,
+ADD COLUMN timezone VARCHAR(100) DEFAULT NULL,
+ADD COLUMN language VARCHAR(50) DEFAULT NULL; 

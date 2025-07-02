@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 29, 2025 at 04:37 AM
+-- Generation Time: Jun 30, 2025 at 07:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -178,17 +178,17 @@ CREATE TABLE `contact_messages` (
   `subject` varchar(255) NOT NULL,
   `message` text NOT NULL,
   `is_read` tinyint(1) DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `reply` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `contact_messages`
 --
 
-INSERT INTO `contact_messages` (`id`, `name`, `email`, `subject`, `message`, `is_read`, `created_at`) VALUES
-(1, 'John Doe', 'john@example.com', 'General Inquiry', 'Hello, I would like to learn more about your services.', 0, '2025-06-27 21:49:12'),
-(2, 'Jane Smith', 'jane@example.com', 'Project Discussion', 'We have a potential project we would like to discuss with your team.', 1, '2025-06-27 21:49:12'),
-(3, 'Mike Johnson', 'mike@example.com', 'Partnership Opportunity', 'I am interested in exploring partnership opportunities with Astro Forge Holdings.', 0, '2025-06-27 21:49:12');
+INSERT INTO `contact_messages` (`id`, `name`, `email`, `subject`, `message`, `is_read`, `created_at`, `reply`) VALUES
+(4, 'Stiffler Bernard Awuah', 'styphler17@gmail.com', 'testing', 'gtf uigkig g iuyg gk u uyg guygf f yfu fu', 0, '2025-06-30 04:09:54', NULL),
+(6, 'Carson Cole', 'styphler17@gmail.com', 'testing', 'oiut rd dvgyuy hjkhyui gcrtdt gyugy', 1, '2025-06-30 04:16:42', NULL);
 
 -- --------------------------------------------------------
 
@@ -271,8 +271,7 @@ CREATE TABLE `pages` (
 --
 
 INSERT INTO `pages` (`id`, `title`, `slug`, `content`, `meta_description`, `is_published`, `created_at`, `updated_at`) VALUES
-('04fbc14a-5487-11f0-bc07-345a60293f45', 'About Our Company', 'about-company', '<h2>Welcome to Our Company</h2>\n<p>We are a leading provider of innovative solutions across multiple industries. Our mission is to deliver exceptional value to our clients through cutting-edge technology and dedicated service.</p>\n\n<h3>Our Vision</h3>\n<p>To be the most trusted partner in digital transformation, helping businesses thrive in the modern world.</p>\n\n<h3>Our Values</h3>\n<ul>\n  <li><strong>Innovation</strong> - We constantly push boundaries and explore new possibilities</li>\n  <li><strong>Integrity</strong> - We do what\'s right, even when no one is watching</li>\n  <li><strong>Excellence</strong> - We strive for perfection in everything we do</li>\n  <li><strong>Collaboration</strong> - We work together to achieve common goals</li>\n</ul>\n\n<h3>Our Services</h3>\n<p>We offer a comprehensive range of services designed to meet the diverse needs of modern businesses:</p>\n<ul>\n  <li>Web Development & Design</li>\n  <li>Mobile Application Development</li>\n  <li>Cloud Infrastructure Solutions</li>\n  <li>Digital Marketing & SEO</li>\n  <li>Consulting & Strategy</li>\n</ul>\n\n<h3>Why Choose Us?</h3>\n<p>With years of experience and a proven track record of success, we have helped countless businesses achieve their digital transformation goals. Our team of experts is committed to delivering results that exceed expectations.</p>', 'Learn more about our company, mission, vision, and values. Discover how we can help your business grow and succeed in the digital age.', 1, '2025-06-29 01:18:52', '2025-06-29 01:18:52'),
-('04fc95b7-5487-11f0-bc07-345a60293f45', 'Our Services', 'services-overview', '<h2>Comprehensive Service Solutions</h2>\n<p>We provide a wide range of professional services to help your business succeed in today\'s competitive market.</p>\n\n<h3>Web Development</h3>\n<p>Custom web applications and websites built with the latest technologies and best practices. We create responsive, user-friendly solutions that drive results.</p>\n\n<h3>Mobile Development</h3>\n<p>Native and cross-platform mobile applications for iOS and Android. We focus on creating intuitive user experiences and robust functionality.</p>\n\n<h3>Cloud Solutions</h3>\n<p>Scalable cloud infrastructure and migration services. We help businesses leverage the power of cloud computing to improve efficiency and reduce costs.</p>\n\n<h3>Digital Marketing</h3>\n<p>Comprehensive digital marketing strategies including SEO, PPC, social media, and content marketing to increase your online presence and drive growth.</p>\n\n<h3>Consulting Services</h3>\n<p>Strategic consulting to help you make informed decisions about technology investments and digital transformation initiatives.</p>', 'Explore our comprehensive range of professional services including web development, mobile apps, cloud solutions, and digital marketing.', 1, '2025-06-29 01:18:52', '2025-06-29 01:18:52'),
+('04fc95b7-5487-11f0-bc07-345a60293f45', 'Our Services', 'services-overview', '<section class=\"max-w-4xl mx-auto px-4 py-12\">\n  <h2 class=\"text-3xl font-bold text-gray-900 mb-4\">Comprehensive Service Solutions</h2>\n  <p class=\"text-lg text-gray-700 mb-8\">\n    We provide a wide range of professional services to help your business succeed in today\'s competitive market.\n  </p>\n\n  <div class=\"space-y-6\">\n    <div>\n      <h3 class=\"text-2xl font-semibold text-gray-800\">Web Development</h3>\n      <p class=\"text-gray-700\">\n        Custom web applications and websites built with the latest technologies and best practices.\n        We create responsive, user-friendly solutions that drive results.\n      </p>\n    </div>\n\n    <div>\n      <h3 class=\"text-2xl font-semibold text-gray-800\">Mobile Development</h3>\n      <p class=\"text-gray-700\">\n        Native and cross-platform mobile applications for iOS and Android.\n        We focus on creating intuitive user experiences and robust functionality.\n      </p>\n    </div>\n\n    <div>\n      <h3 class=\"text-2xl font-semibold text-gray-800\">Cloud Solutions</h3>\n      <p class=\"text-gray-700\">\n        Scalable cloud infrastructure and migration services.\n        We help businesses leverage the power of cloud computing to improve efficiency and reduce costs.\n      </p>\n    </div>\n\n    <div>\n      <h3 class=\"text-2xl font-semibold text-gray-800\">Digital Marketing</h3>\n      <p class=\"text-gray-700\">\n        Comprehensive digital marketing strategies including SEO, PPC, social media,\n        and content marketing to increase your online presence and drive growth.\n      </p>\n    </div>\n\n    <div>\n      <h3 class=\"text-2xl font-semibold text-gray-800\">Consulting Services</h3>\n      <p class=\"text-gray-700\">\n        Strategic consulting to help you make informed decisions about technology investments\n        and digital transformation initiatives.\n      </p>\n    </div>\n  </div>\n</section>', 'Explore our comprehensive range of professional services including web development, mobile apps, cloud solutions, and digital marketing.', 1, '2025-06-29 01:18:52', '2025-06-30 12:25:20'),
 ('04fd4af0-5487-11f0-bc07-345a60293f45', 'Contact Information', 'contact-info', '<h2>Get in Touch</h2>\n<p>We\'re here to help you succeed. Reach out to us for any questions, inquiries, or to discuss your project requirements.</p>\n\n<h3>Contact Details</h3>\n<div style=\"background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n  <p><strong>Email:</strong> <a href=\"mailto:contact@astroforge.com\">contact@astroforge.com</a></p>\n  <p><strong>Phone:</strong> +1 (555) 123-4567</p>\n  <p><strong>Address:</strong> 123 Business Plaza, Innovation District, Tech City, TC 12345</p>\n  <p><strong>Business Hours:</strong> Monday - Friday, 9:00 AM - 6:00 PM EST</p>\n</div>\n\n<h3>Send Us a Message</h3>\n<p>Use our contact form to send us a detailed message about your project or inquiry. We typically respond within 24 hours during business days.</p>\n\n<h3>Schedule a Consultation</h3>\n<p>Ready to discuss your project? Schedule a free consultation call with our team to explore how we can help you achieve your goals.</p>\n\n<h3>Emergency Support</h3>\n<p>For urgent technical issues or support requests, please call our support line at +1 (555) 987-6543.</p>', 'Contact us for questions, project inquiries, or to schedule a consultation. Find our contact details and business hours.', 1, '2025-06-29 01:18:52', '2025-06-29 01:18:52'),
 ('0af15b37-5487-11f0-bc07-345a60293f45', 'test page', 'test-page', 'random me', 'testing', 1, '2025-06-29 01:19:02', '2025-06-29 01:19:02');
 
@@ -351,7 +350,7 @@ INSERT INTO `services` (`id`, `title`, `slug`, `description`, `content`, `icon`,
 ('053a121c-52d5-11f0-b8e2-345a60293f45', 'Test Service', 'test-service', 'A test service', 'Test content', 'Building2', 'https://picsum.photos/seed/picsum/600/400', 1, 6, '2025-06-26 21:28:49', '2025-06-26 21:34:17'),
 ('97680a41-51c3-11f0-b8e2-345a60293f45', 'Updated Mining Solutions', 'mining', 'Updated mining description', NULL, 'Mountain', NULL, 1, 1, '2025-06-25 12:51:41', '2025-06-26 21:29:49'),
 ('97681bb2-51c3-11f0-b8e2-345a60293f45', 'Real Estate Development', 'real-estate', 'Innovative real estate development and investment services', NULL, 'Home', NULL, 1, 2, '2025-06-25 12:51:41', '2025-06-26 01:32:47'),
-('97681c69-51c3-11f0-b8e2-345a60293f45', 'Agricultural Technology', 'agriculture', 'Advanced agricultural technology and sustainable farming solutions', NULL, 'Sprout', NULL, 1, 3, '2025-06-25 12:51:41', '2025-06-26 01:32:47'),
+('97681c69-51c3-11f0-b8e2-345a60293f45', 'Agricultural Technology', 'agriculture', 'Advanced agricultural technology and sustainable farming solutions', NULL, 'Sprout', NULL, 1, 3, '2025-06-25 12:51:41', '2025-06-29 15:51:12'),
 ('97681cc0-51c3-11f0-b8e2-345a60293f45', 'Community Development', 'community', 'Community development and social impact initiatives', NULL, 'Users', NULL, 1, 4, '2025-06-25 12:51:41', '2025-06-26 01:32:47'),
 ('97681d0c-51c3-11f0-b8e2-345a60293f45', 'Educational Programs', 'education', 'Educational programs and training solutions', NULL, 'GraduationCap', NULL, 1, 5, '2025-06-25 12:51:41', '2025-06-26 01:32:47');
 
@@ -383,13 +382,13 @@ INSERT INTO `site_settings` (`id`, `setting_key`, `setting_type`, `setting_value
 ('85b40a46-5327-11f0-abea-345a60293f45', 'hero_background_images', 'json', '[\"/placeholder.svg\",\"/placeholder.svg\",\"/placeholder.svg\"]', '2025-06-27 08:38:11'),
 ('97677ccd-51c3-11f0-b8e2-345a60293f45', 'site_title', 'string', '\"Astro Forge Holdings\"', '2025-06-25 12:51:41'),
 ('97677de6-51c3-11f0-b8e2-345a60293f45', 'site_description', 'string', '\"Leading provider of innovative solutions across multiple industries\"', '2025-06-25 12:51:41'),
-('97677e74-51c3-11f0-b8e2-345a60293f45', 'contact_email', 'string', '\"contact@astroforge.com\"', '2025-06-25 12:51:41'),
+('97677e74-51c3-11f0-b8e2-345a60293f45', 'contact_email', 'string', '\"brastyphler17@gmail.com\"', '2025-06-30 03:31:05'),
 ('97677eab-51c3-11f0-b8e2-345a60293f45', 'contact_phone', 'string', '\"+233 000 000 000\"', '2025-06-26 22:14:28'),
 ('97677edd-51c3-11f0-b8e2-345a60293f45', 'social_links', 'json', '{\"facebook\":\"\",\"twitter\":\"\",\"linkedin\":\"\",\"instagram\":\"\"}', '2025-06-26 22:14:28'),
 ('97677fd5-51c3-11f0-b8e2-345a60293f45', 'theme_colors', 'json', '{\"primary\": \"#3B82F6\", \"secondary\": \"#1F2937\", \"accent\": \"#F59E0B\"}', '2025-06-25 12:51:41'),
-('9767800d-51c3-11f0-b8e2-345a60293f45', 'logo_url', 'string', '\"\"', '2025-06-25 12:51:41'),
+('9767800d-51c3-11f0-b8e2-345a60293f45', 'logo_url', 'string', '\"/astroforge-uploads/AstroForgeHoldings-Logo.png\"', '2025-06-30 13:14:16'),
 ('9767803c-51c3-11f0-b8e2-345a60293f45', 'footer_text', 'string', '\"© 2024 Astro Forge Holdings. All rights reserved.\"', '2025-06-25 12:51:41'),
-('b04665cc-546e-11f0-bc07-345a60293f45', 'theme_mode', 'string', '\"dark\"', '2025-06-29 00:38:47'),
+('b04665cc-546e-11f0-bc07-345a60293f45', 'theme_mode', 'string', '\"dark\"', '2025-06-30 17:42:33'),
 ('b047fbdd-546e-11f0-bc07-345a60293f45', 'primary_color', 'string', '\"#3B82F6\"', '2025-06-28 22:24:42'),
 ('b04800f0-546e-11f0-bc07-345a60293f45', 'accent_color', 'string', '\"#F59E0B\"', '2025-06-28 22:24:42'),
 ('c909bfab-5473-11f0-bc07-345a60293f45', 'astro_blue', 'string', '\"#0066cc\"', '2025-06-28 23:22:50'),
@@ -400,45 +399,6 @@ INSERT INTO `site_settings` (`id`, `setting_key`, `setting_type`, `setting_value
 ('ef405fe2-5328-11f0-abea-345a60293f45', 'hero_stats_projects', 'string', '\"500+\"', '2025-06-27 08:57:06'),
 ('ef40607a-5328-11f0-abea-345a60293f45', 'hero_stats_countries', 'string', '\"50+\"', '2025-06-27 08:57:06'),
 ('ef4060f9-5328-11f0-abea-345a60293f45', 'hero_stats_years', 'string', '\"25+\"', '2025-06-27 08:57:06');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `site_settings_backup`
---
-
-CREATE TABLE `site_settings_backup` (
-  `id` varchar(36) NOT NULL DEFAULT uuid(),
-  `setting_key` varchar(100) NOT NULL,
-  `setting_type` varchar(50) NOT NULL,
-  `setting_value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`setting_value`)),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `site_settings_backup`
---
-
-INSERT INTO `site_settings_backup` (`id`, `setting_key`, `setting_type`, `setting_value`, `updated_at`) VALUES
-('08e09a16-51fb-11f0-b8e2-345a60293f45', 'contact_address', 'string', '\"coming soon\"', '2025-06-26 22:14:28'),
-('08e6219a-51fb-11f0-b8e2-345a60293f45', 'contact_hours', 'string', '\"Monday - Friday: 9:00 AM - 6:00 PM\"', '2025-06-25 19:40:00'),
-('85b3c720-5327-11f0-abea-345a60293f45', 'hero_title', 'string', '\"\\\"\\\\\\\"\\\\\\\\\\\\\\\"ASTRO FORGE HOLDINGS\\\\\\\\\\\\\\\"\\\\\\\"\\\"\"', '2025-06-27 08:26:52'),
-('85b40755-5327-11f0-abea-345a60293f45', 'hero_subtitle', 'string', '\"\\\"\\\\\\\"\\\\\\\\\\\\\\\"Building Tomorrow\'s Infrastructure Through Innovation, Sustainability, and Strategic Investment\\\\\\\\\\\\\\\"\\\\\\\"\\\"\"', '2025-06-27 08:26:52'),
-('85b4084d-5327-11f0-abea-345a60293f45', 'hero_cta_text', 'string', '\"\\\"\\\\\\\"\\\\\\\\\\\\\\\"Discover More\\\\\\\\\\\\\\\"\\\\\\\"\\\"\"', '2025-06-27 08:26:52'),
-('85b409b8-5327-11f0-abea-345a60293f45', 'hero_cta_link', 'string', '\"\\\"\\\\\\\"\\\\\\\\\\\\\\\"/about\\\\\\\\\\\\\\\"\\\\\\\"\\\"\"', '2025-06-27 08:26:52'),
-('85b40a46-5327-11f0-abea-345a60293f45', 'hero_background_images', 'json', '\"[\\\"/placeholder.svg\\\",\\\"/placeholder.svg\\\",\\\"/placeholder.svg\\\"]\"', '2025-06-27 08:09:18'),
-('97677ccd-51c3-11f0-b8e2-345a60293f45', 'site_title', 'string', '\"Astro Forge Holdings\"', '2025-06-25 12:51:41'),
-('97677de6-51c3-11f0-b8e2-345a60293f45', 'site_description', 'string', '\"Leading provider of innovative solutions across multiple industries\"', '2025-06-25 12:51:41'),
-('97677e74-51c3-11f0-b8e2-345a60293f45', 'contact_email', 'string', '\"contact@astroforge.com\"', '2025-06-25 12:51:41'),
-('97677eab-51c3-11f0-b8e2-345a60293f45', 'contact_phone', 'string', '\"+233 000 000 000\"', '2025-06-26 22:14:28'),
-('97677edd-51c3-11f0-b8e2-345a60293f45', 'social_links', 'json', '{\"facebook\":\"\",\"twitter\":\"\",\"linkedin\":\"\",\"instagram\":\"\"}', '2025-06-26 22:14:28'),
-('97677fd5-51c3-11f0-b8e2-345a60293f45', 'theme_colors', 'json', '{\"primary\": \"#3B82F6\", \"secondary\": \"#1F2937\", \"accent\": \"#F59E0B\"}', '2025-06-25 12:51:41'),
-('9767800d-51c3-11f0-b8e2-345a60293f45', 'logo_url', 'string', '\"\"', '2025-06-25 12:51:41'),
-('9767803c-51c3-11f0-b8e2-345a60293f45', 'footer_text', 'string', '\"© 2024 Astro Forge Holdings. All rights reserved.\"', '2025-06-25 12:51:41'),
-('ef405f1a-5328-11f0-abea-345a60293f45', 'hero_badge_text', 'string', '\"\\\"\\\\\\\"\\\\\\\\\\\\\\\"Innovation • Sustainability • Growth\\\\\\\\\\\\\\\"\\\\\\\"\\\"\"', '2025-06-27 08:26:52'),
-('ef405fe2-5328-11f0-abea-345a60293f45', 'hero_stats_projects', 'string', '\"\\\"\\\\\\\"\\\\\\\\\\\\\\\"500+\\\\\\\\\\\\\\\"\\\\\\\"\\\"\"', '2025-06-27 08:26:52'),
-('ef40607a-5328-11f0-abea-345a60293f45', 'hero_stats_countries', 'string', '\"\\\"\\\\\\\"\\\\\\\\\\\\\\\"50+\\\\\\\\\\\\\\\"\\\\\\\"\\\"\"', '2025-06-27 08:26:52'),
-('ef4060f9-5328-11f0-abea-345a60293f45', 'hero_stats_years', 'string', '\"\\\"\\\\\\\"\\\\\\\\\\\\\\\"25+\\\\\\\\\\\\\\\"\\\\\\\"\\\"\"', '2025-06-27 08:26:52');
 
 -- --------------------------------------------------------
 
@@ -548,7 +508,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `email`, `password_hash`, `name`, `role`, `is_active`, `created_at`, `updated_at`, `image_url`, `bio`, `phone`, `timezone`, `language`) VALUES
-('db94dae0-548c-11f0-bc07-345a60293f45', 'styphler17@gmail.com', '$2b$10$HRjUtPhsmwNLjt.6HSr8YubK4R96761S/yo6iEZCZDvvnY9VqTtqK', 'Super Admin', 'admin', 1, '2025-06-29 02:00:40', '2025-06-29 02:00:40', NULL, NULL, NULL, NULL, NULL);
+('9766fe08-51c3-11f0-b8e2-345a60293f45', 'admin@astroforge.com', '$2b$10$VO9a0uGFexu9EDalzHB/QeEsx1jcKOBOSXLGjjTTNnYRnnBznRRs2', 'Astro Forge Admin', 'admin', 1, '2025-06-29 10:16:37', '2025-06-29 10:16:37', NULL, NULL, NULL, NULL, NULL),
+('db94dae0-548c-11f0-bc07-345a60293f45', 'styphler17@gmail.com', '$2b$10$HRjUtPhsmwNLjt.6HSr8YubK4R96761S/yo6iEZCZDvvnY9VqTtqK', 'Super Admin', 'admin', 1, '2025-06-29 02:00:40', '2025-06-29 02:58:03', NULL, NULL, NULL, NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -715,7 +676,7 @@ ALTER TABLE `career_requirements`
 -- AUTO_INCREMENT for table `contact_messages`
 --
 ALTER TABLE `contact_messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `faqs`

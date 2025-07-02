@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+docs/add_user_profile_fields.sql
+
+docs/add_career_sections_tables.sql

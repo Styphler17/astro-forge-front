@@ -1,133 +1,306 @@
 # 🚀 Astro Forge Holdings - Deployment Guide
 
-## Quick Deploy Options
+This guide covers deploying both the frontend and backend of Astro Forge Holdings to production.
 
-### Option 1: GitHub Pages
+## 📋 Prerequisites
+
+- Node.js 18+ and npm
+- MySQL 8.0+ database
+- Web hosting provider (e.g., Hostinger, Vercel, Netlify)
+- Domain name (optional but recommended)
+
+## 🏗️ Frontend Deployment
+
+### Option 1: Static Hosting (Recommended)
+
+#### 1. Build the Project
+
+```bash
+# Run the deployment script
+./deploy.sh
+
+# Or manually:
+npm run deploy:full
+```
+
+#### 2. Deploy to Hosting Provider
+
+**Hostinger:**
+1. Upload the `dist/` folder contents to your hosting directory
+2. Ensure `.htaccess` is in the root directory
+3. Configure your domain to point to the hosting
+
+**Vercel:**
+1. Connect your GitHub repository
+2. Set build command: `npm run build:prod`
+3. Set output directory: `dist`
+4. Deploy
+
+**Netlify:**
+1. Drag and drop the `dist/` folder
+2. Or connect your repository and set build settings
+
+### Option 2: VPS/Server Deployment
+
 ```bash
 # Build the project
 npm run build:prod
 
-# Deploy to GitHub Pages via GitHub Actions
+# Copy dist folder to server
+scp -r dist/ user@your-server:/var/www/html/
+
+# Set proper permissions
+chmod -R 755 /var/www/html/
 ```
 
-## 🔧 Pre-Deployment Setup
+## 🔧 Backend Deployment
 
-### 1. Environment Variables
-Create `.env` file for production:
+### Option 1: VPS/Server Deployment
+
+#### 1. Prepare the Server
+
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install Node.js
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Install MySQL
+sudo apt install mysql-server -y
+sudo mysql_secure_installation
+```
+
+#### 2. Deploy Backend
+
+```bash
+# Navigate to server directory
+cd server
+
+# Run deployment script
+./deploy.sh
+
+# Or manually:
+npm ci --production
+```
+
+#### 3. Configure Environment
+
+```bash
+# Create production environment file
+cp env.example .env
+nano .env
+```
+
+Update `.env` with production values:
 ```env
-VITE_API_BASE_URL=https://your-backend-domain.com/api
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER=your_production_user
+MYSQL_PASSWORD=your_secure_password
+MYSQL_DATABASE=astro_forge_db
+NODE_ENV=production
+PORT=3001
+```
+
+#### 4. Set Up Process Manager
+
+```bash
+# Install PM2
+sudo npm install -g pm2
+
+# Start the application
+pm2 start server.js --name "astro-forge-backend"
+
+# Save PM2 configuration
+pm2 save
+pm2 startup
+```
+
+### Option 2: Platform as a Service
+
+**Railway:**
+1. Connect your GitHub repository
+2. Set environment variables
+3. Deploy
+
+**Render:**
+1. Create a new Web Service
+2. Connect your repository
+3. Set build command: `npm install`
+4. Set start command: `npm start`
+
+## 🗄️ Database Setup
+
+### 1. Create Production Database
+
+```sql
+CREATE DATABASE astro_forge_db;
+CREATE USER 'astro_user'@'localhost' IDENTIFIED BY 'your_secure_password';
+GRANT ALL PRIVILEGES ON astro_forge_db.* TO 'astro_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+### 2. Import Schema
+
+```bash
+# Import the database schema
+mysql -u astro_user -p astro_forge_db < docs/astro_forge_db.sql
+```
+
+### 3. Create Admin User
+
+```sql
+INSERT INTO users (email, password_hash, name, role, is_active) 
+VALUES ('admin@astroforge.com', '$2a$10$your_hashed_password', 'Admin User', 'admin', 1);
+```
+
+## 🔒 Security Configuration
+
+### 1. SSL/HTTPS Setup
+
+```bash
+# Install Certbot (Let's Encrypt)
+sudo apt install certbot python3-certbot-apache -y
+
+# Get SSL certificate
+sudo certbot --apache -d yourdomain.com
+```
+
+### 2. Firewall Configuration
+
+```bash
+# Configure UFW firewall
+sudo ufw allow 22
+sudo ufw allow 80
+sudo ufw allow 443
+sudo ufw enable
+```
+
+### 3. Database Security
+
+```sql
+-- Remove root access from remote hosts
+DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+
+-- Create application-specific user with limited privileges
+CREATE USER 'app_user'@'localhost' IDENTIFIED BY 'strong_password';
+GRANT SELECT, INSERT, UPDATE, DELETE ON astro_forge_db.* TO 'app_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+## 🌐 Domain Configuration
+
+### 1. DNS Settings
+
+Configure your domain's DNS:
+- A record: Point to your server IP
+- CNAME record: www → yourdomain.com
+
+### 2. Environment Variables
+
+Update frontend environment variables:
+```env
+VITE_API_BASE_URL=https://yourdomain.com/api
 VITE_APP_TITLE=Astro Forge Holdings
-VITE_APP_DESCRIPTION=Leading provider of innovative solutions
 NODE_ENV=production
 ```
 
-### 2. Build the Project
+## 📊 Monitoring & Maintenance
+
+### 1. Log Management
+
 ```bash
-npm run build:prod
+# View application logs
+pm2 logs astro-forge-backend
+
+# View system logs
+sudo journalctl -u nginx
+sudo tail -f /var/log/mysql/error.log
 ```
 
-### 3. Test Locally
+### 2. Backup Strategy
+
 ```bash
-npm run preview
+# Database backup script
+#!/bin/bash
+mysqldump -u astro_user -p astro_forge_db > backup_$(date +%Y%m%d_%H%M%S).sql
 ```
 
-## 🌐 Backend Deployment
+### 3. Performance Monitoring
 
-### Railway (Recommended)
-1. Connect your GitHub repo to Railway
-2. Set environment variables:
-   - `MYSQL_HOST`
-   - `MYSQL_USER`
-   - `MYSQL_PASSWORD`
-   - `MYSQL_DATABASE`
-   - `NODE_ENV=production`
-3. Deploy
+- Set up monitoring with PM2: `pm2 monit`
+- Configure log rotation
+- Set up automated backups
 
-### Render
-1. Create new Web Service
-2. Connect GitHub repo
-3. Build Command: `npm install`
-4. Start Command: `npm start`
-5. Set environment variables
+## 🔄 CI/CD Pipeline
 
-### Heroku
-```bash
-# Install Heroku CLI
-heroku create your-app-name
-heroku config:set NODE_ENV=production
-git push heroku main
-```
+### GitHub Actions Example
 
-## 📊 Database Setup
-
-### MySQL on Railway/Render
-1. Create MySQL database service
-2. Import schema: `docs/astro_forge_db.sql`
-3. Update backend environment variables
-
-### PlanetScale (Alternative)
-1. Create database on PlanetScale
-2. Import schema
-3. Update connection string
-
-## 🔒 Security Checklist
-
-- [ ] HTTPS enabled
-- [ ] Environment variables set
-- [ ] Database credentials secure
-- [ ] CORS configured for production domain
-- [ ] API rate limiting enabled
-- [ ] Security headers configured
-
-## 📱 Custom Domain Setup
-
-### GitHub Pages
-1. Go to Repository Settings → Pages
-2. Set source to GitHub Actions
-3. Configure custom domain in settings
-
-## 🚨 Troubleshooting
-
-### Common Issues:
-1. **CORS Errors**: Update backend CORS for production domain
-2. **API 404**: Check API base URL in frontend
-3. **Database Connection**: Verify environment variables
-4. **Build Failures**: Check Node.js version compatibility
-
-### Support:
-- Check build logs in deployment platform
-- Verify environment variables
-- Test API endpoints
-- Check database connectivity
-
-## 📈 Post-Deployment
-
-1. Test all features
-2. Verify admin login
-3. Check mobile responsiveness
-4. Test contact forms
-5. Monitor performance
-6. Set up analytics
-
-## 🔄 Continuous Deployment
-
-### GitHub Actions (Optional)
 ```yaml
-name: Deploy
+name: Deploy to Production
+
 on:
   push:
     branches: [main]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: '18'
       - run: npm ci
       - run: npm run build:prod
-      - run: npm run deploy
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: |
+            cd /var/www/astro-forge
+            git pull
+            npm ci --production
+            pm2 restart astro-forge-backend
 ```
 
-Your site is now ready for deployment! Choose your preferred platform and follow the steps above. 
+## 🚨 Troubleshooting
+
+### Common Issues
+
+1. **CORS Errors**: Ensure backend CORS settings match frontend domain
+2. **Database Connection**: Check MySQL service and credentials
+3. **Build Failures**: Verify Node.js version and dependencies
+4. **Routing Issues**: Ensure `.htaccess` is properly configured
+
+### Debug Commands
+
+```bash
+# Check application status
+pm2 status
+pm2 logs
+
+# Test database connection
+mysql -u user -p -h host database
+
+# Check server resources
+htop
+df -h
+free -h
+```
+
+## 📞 Support
+
+For deployment issues:
+1. Check the logs: `pm2 logs` or hosting provider logs
+2. Verify environment variables
+3. Test database connectivity
+4. Review security configurations
+
+---
+
+**Remember**: Always test your deployment in a staging environment first! 
